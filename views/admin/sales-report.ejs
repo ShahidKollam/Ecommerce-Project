@@ -109,16 +109,13 @@
                        for(let i=0; i < order.length; i++){ 
                     %>    
 
-                    <% for (let j = 0; j < order[i].orderItems.length; j++) { %>
-
                     <tr>
                         <td><%= order[i].user_id?.name %> </td>
                         <td><%= order[i].orderID %> </td>
                         <td><%= order[i].orderDate.toDateString() %> </td>
-                        <td><%= order[i].orderItems[j].pricePerOrdrItem %> </td>
+                        <td><%= order[i].totalAmount %> </td>
                         <td><%= order[i].status %> </td>
                     </tr>
-                    <% } %>
                     <% } } else { %>
                     <tr>
                         <td> No Orders </td>
