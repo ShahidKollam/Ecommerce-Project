@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="admin-asset/images/favicon.svg" type="image/x-icon" />
+    <title>Sign In | Admin </title>
+
+    <!-- ========== All CSS files linkup ========= -->
+    <link rel="stylesheet" href="admin-asset/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="admin-asset/css/lineicons.css" />
+    <link rel="stylesheet" href="admin-asset/css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="admin-asset/css/fullcalendar.css" />
+    <link rel="stylesheet" href="admin-asset/css/main.css" />
+  </head>
+  <body>
+    <!-- ======== Preloader =========== -->
+    <div id="preloader">
+      <div class="spinner"></div>
+    </div>
+      <section class="signin-section">
+        <div class="container-fluid">
+         
+          <div class="row g-0 auth-row">
+            <div class="col-lg-6">
+              <div class="auth-cover-wrapper bg-primary-100">
+                <div class="auth-cover">
+                  <div class="title text-center">
+                    <h1 class="text-primary mb-10">Welcome Back</h1>
+                    <p class="text-medium">
+                      Sign in to your Existing account to continue
+                    </p>
+                  </div>
+                  <div class="cover-image">
+                    <img src="admin-asset/images/auth/signin-image.svg" alt="" />
+                  </div>
+                  <div class="shape-image">
+                    <img src="admin-asset/images/auth/shape.svg" alt="" />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- end col -->
+            <div class="col-lg-6">
+              <div class="signin-wrapper">
+                <div class="form-wrapper">
+                  <h6 class="mb-15">Sign In Form</h6>
+                  <p class="text-sm mb-25">
+                    Start creating the best possible user experience for your
+                    customers.
+                  </p>
+
+                  <form method="post" action="/admin" onsubmit="return validateForm()">
+                    <div class="row">
+                      <div class="col-12">
+                        <div class="input-style-1">
+                          <label for="email-login">Email</label>
+                          <input id="email-login" name="email" class="form-control" type="email" placeholder="Email"  />
+                          <span id="email-error" class="error-message"></span>
+                        </div>
+                      </div>
+                      <!-- end col -->
+                      <div class="col-12">
+                        <div class="input-style-1">
+                          <label for="password">Password</label>
+                          <input type="password" name="password" class="form-control" id="password-login" placeholder="Password"  />
+                          <span id="password-error" class="error-message"></span>
+                        </div>
+                      </div>
+                      <!-- end col -->
+                      <div class="col-12">
+                        <div class="input-style-1">
+                          <h6 class="mb-15">
+                            <% if(typeof message !== 'undefined') { %>
+                              <p style="color: green;"> <%= message %></p>
+                            <% } %>
+                  
+                            <% if(typeof error !== 'undefined') { %>
+                              <p style="color: rgb(199, 5, 5);"> <%= error %></p>
+                            <% } %>
+                          </h6>
+                        </div>
+                      </div>
+                      <div class="col-12">
+                        <div class="button-group d-flex justify-content-center flex-wrap">
+                          <button type="submit" class="main-btn primary-btn btn-hover w-100 text-center">Sign In</button>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                  </div>
+              </div>
+            </div>
+            <!-- end col -->
+          </div>
+          <!-- end row -->
+        </div>
+      </section>
+      <!-- ========== signin-section end ========== -->
+
+      <!-- ========== footer start =========== -->
+      <footer class="footer">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-md-6 order-last order-md-first">
+              <div class="copyright text-center text-md-start">
+                <p class="text-sm">
+                  Designed and Developed by
+                  <a href="https://plainadmin.com" rel="nofollow" target="_blank">
+                    PlainAdmin
+                  </a>
+                </p>
+              </div>
+            </div>
+            <!-- end col-->
+            <div class="col-md-6">
+              <div class="terms d-flex justify-content-center justify-content-md-end">
+                <a href="#0" class="text-sm">Term & Conditions</a>
+                <a href="#0" class="text-sm ml-15">Privacy & Policy</a>
+              </div>
+            </div>
+          </div>
+          <!-- end row -->
+        </div>
+        <!-- end container -->
+      </footer>
+      <!-- ========== footer end =========== -->
+    </main>
+    <!-- ======== main-wrapper end =========== -->
+
+    <!-- ========= All Javascript files linkup ======== -->
+    <script src="admin-asset/js/bootstrap.bundle.min.js"></script>
+    <script src="admin-asset/js/Chart.min.js"></script>
+    <script src="admin-asset/js/dynamic-pie-chart.js"></script>
+    <script src="admin-asset/js/moment.min.js"></script>
+    <script src="admin-asset/js/fullcalendar.js"></script>
+    <script src="admin-asset/js/jvectormap.min.js"></script>
+    <script src="admin-asset/js/world-merc.js"></script>
+    <script src="admin-asset/js/polyfill.js"></script>
+    <script src="admin-asset/js/main.js"></script>
+    <script>
+      function validateForm() {
+        var emailInput = document.getElementById('email-login');
+        var passwordInput = document.getElementById('password-login');
+    
+        var email = emailInput.value;
+        var password = passwordInput.value;
+    
+        // Basic email format validation using regular expression
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          displayErrorMessage(emailInput, 'Please enter a valid email address.', 'email-error');
+          return false; // Prevent form submission
+        }
+    
+        if (password.trim() === '') {
+          displayErrorMessage(passwordInput, 'Please enter a password.', 'password-error');
+          return false; // Prevent form submission
+        }
+    
+        // Additional validation logic can be added here
+    
+        return true; // Allow form submission
+      }
+    
+      function displayErrorMessage(inputElement, message, errorSpanId) {
+        var errorMessageElement = document.getElementById(errorSpanId);
+        errorMessageElement.textContent = message;
+      }
+    </script>
+    
+  </body>
+</html>

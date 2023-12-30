@@ -1,0 +1,224 @@
+<%- include('../layout/adminHeader.ejs') %>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+<div class="main">
+    <div class="container">
+        <div class="row margin-bottom-40">
+            <div class="col-md-12 col-sm-12">
+                <div class="order-history">
+                    <h1 class="mb-20" style="color: #333;">Orders</h1>
+                    <div class="table-wrapper table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="order-date">Order Date</th>
+                                    <th class="order-id">Order ID</th>
+                                    <th class="order-id">Customer</th>
+                                    <th class="total-amount">Total Amount</th>
+                                    <th class="payment-method">Payment Method</th>
+                                    <th class="order-status">Order Status</th>
+                                    <th class="order-details"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (orderData.length > 0) {
+                                    for (let i = 0; i < orderData.length; i++) {
+                                        const currentStatus = orderData[i].status; %>
+                                        <tr>
+                                            <td class="min-width"><%= (new Date(orderData[i].orderDate)).toLocaleDateString('en-GB') %></td>
+                                            <td class="min-width"><%= orderData[i].orderID %></td>
+                                            <td><%= orderData[i].user_id?.name %> </td>
+                                            <td class="min-width" style="background-color: #2580f6; color: #fff;"><%= orderData[i].totalAmount %></td>
+                                            <td class="min-width"><%= orderData[i].paymentMethod %></td>
+                                            <td class="min-width">
+                                                <select class="order-status-dropdown" data-order-id="<%= orderData[i]._id %>" onchange="updateOrderStatus(this)">
+                                                    <option value="<%= currentStatus %>"><%= currentStatus %></option>
+                                                    <option value="Shipped" <%= orderData[i].status === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                                    <option value="Delivered" <%= orderData[i].status === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                                </select>
+                                            </td>                                    
+                                            <td class="btn-link"><a href="/admin/order-details?id=<%= orderData[i]._id %>">Details</a></td>
+                                        </tr>
+                                    <% } } else { %>
+                                    <tr>
+                                        <td colspan="6">
+                                            <h3>No orders</h3>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<script>
+    function updateOrderStatus(selectElement) {
+        const orderId = selectElement.getAttribute('data-order-id');
+        const selectedStatus = selectElement.value;
+
+        fetch('/admin/update-order-status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                orderId: orderId,
+                status: selectedStatus,
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Status updated successfully:', data);
+
+            Toastify({
+                text: "Order status updated successfully!",
+                duration: 8000, 
+                close: true,
+                gravity: "top", 
+                position: "right",
+                backgroundColor: "#000", 
+                stopOnFocus: true,
+                className: "modern-toastify toastify-success", 
+            }).showToast();
+        })
+        .catch(error => {
+            console.error('Error updating status:', error);
+
+            Toastify({
+                text: "Error updating order status.",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                backgroundColor: "#000", 
+                stopOnFocus: true,
+                className: "modern-toastify toastify-error", 
+            }).showToast();
+        });
+    }
+</script>
+
+<style>
+    .modern-toastify {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 16px;
+        color: rgb(33, 254, 4); 
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(17, 0, 255, 0.348);
+    }
+
+    .toastify-error {
+        background-color: #f52213; 
+    }
+
+    .toastify-success {
+        background-color: #07f837; 
+    }
+</style>
+
+<style>
+    .order-status-dropdown {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        background-color: rgb(10, 10, 10);
+        color: #07f837;
+        font-size: 12px;
+        font-weight: bold;
+        outline: none;
+    }
+
+    .order-status-dropdown:hover {
+        border-color: #f52213;
+    }
+
+    .order-status-dropdown:focus {
+        border-color: #4cae4c;
+        box-shadow: 0 0 5px rgba(10, 151, 10, 0.5);
+    }
+
+    .order-history {
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+    }
+
+    .table th,
+    .table td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .table th {
+        background-color: #0088cc;
+        color: #fff;
+    }
+
+    .table thead th h6 {
+        margin: 0;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #ffffff;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .order-date {
+        width: 12%;
+        background-color: #f5f5f5;
+    }
+
+    .order-id {
+        width: 12%;
+        background-color: #f5f5f5;
+    }
+
+    .item-name {
+        width: 20%;
+        background-color: #ffcc00;
+    }
+
+    .total-amount {
+        width: 12%;
+    }
+
+    .payment-method {
+        width: 12%;
+    }
+
+    .order-status {
+        width: 12%;
+    }
+
+    .order-details {
+        width: 20%;
+    }
+</style>
+
+<%- include('../layout/adminFooter.ejs') %>

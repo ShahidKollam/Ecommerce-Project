@@ -1,0 +1,236 @@
+<%- include('../layout/header.ejs') %>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<div class="main">
+    <div class="container">
+        <div class="row margin-bottom-40">
+            <div class="col-md-12 col-sm-12">
+                <div class="order-history">
+                    <h1 class="mb-20" style="color: #333;">Order History</h1>
+
+                    <div class="table-wrapper table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="order-date">Order Date</th>
+                                    <th class="order-id">Order ID</th>
+                                    <th class="total-amount">Total </th>
+                                    <th class="payment-method">Payment Method</th>
+                                    <th class="order-status">Status </th>
+
+                                    <th class="order-status"></th>
+                                </tr>
+                            </thead>
+                            <% if (orderData.length > 0) {
+                                for (let i = 0; i < orderData.length; i++) { %>
+                            <tbody>
+
+                                <tr>
+                                    <td class="min-width"><%= (new Date(orderData[i].orderDate)).toLocaleDateString('en-GB') %></td>
+                                    <td class="min-width"><%= orderData[i].orderID %></td>
+
+                                    <td class="min-width" style="background-color: #f9cbcb; color: #080808;"><%=orderData[i].totalAmount %></td>
+                                    <td class="min-width"><%= orderData[i].paymentMethod %></td>
+                                    <td class="min-width order-status-<%= orderData[i].status.toLowerCase() %>"><%= orderData[i].status %></td>                                    
+                                    
+                                    <td class="btn">
+                                        <a href="/order-details?id=<%= orderData[i]._id %> " class="text-info">Details</a>
+                                    </td>
+                                </tr>
+                                
+                                <% } } else { %>
+                                <tr>
+                                    <td colspan="7">
+                                        <h3>No orders</h3>
+                                    </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="customModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <p class="lead">Oops! Something went wrong.</p>
+                <p id="modalMessage"></p>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    async function processReturn(orderId) {
+    try {
+        const response = await fetch('/order-return', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log(data);
+        window.location.href = `/order-history`;
+
+    } catch (error) {
+        console.error('Error processing return:', error);
+        showModal('Error : Order has already been Returned');
+    }
+
+    function showModal(message) {
+    const modal = document.getElementById('customModal');
+
+    const modalMessage = modal.querySelector('#modalMessage');
+    modalMessage.innerHTML = message;
+
+    $(modal).modal('show');
+}
+
+}
+
+</script>
+
+<style>
+    .order-status-pending {
+        background-color: #82e282;
+        color: #fff;
+    }
+
+    .order-status-cancelled {
+        background-color: #f57773;
+        color: #fff;
+    }
+
+    .order-status-returned {
+        background-color: #d04742;
+        color: #fff;
+    }
+
+    .order-status-shipped {
+        background-color: #2dc72d;
+        color: #fff;
+    }
+
+    .order-status-delivered {
+        background-color: rgb(3, 172, 3);
+        color: #fff;
+    }
+
+    .order-status-placed {
+        background-color: #52d352;
+        color: #fff;
+    }
+</style>
+
+<style>
+    .red-button {
+    background-color: #ff2c2c; /* Light red background color */
+    color: #fff; /* White text color */
+    padding: 5px 12px; /* Adjusted padding for a smaller size */
+    border: none; /* Remove default button border */
+    border-radius: 10px; /* Add border-radius for rounded corners */
+    cursor: pointer; /* Add pointer cursor on hover */
+    font-size: 12px; /* Adjusted font size for a smaller text */
+}
+
+.red-button:hover {
+    background-color: #171616; /* Darker red on hover */
+}
+.order-history {
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 30px;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        font-size: large;
+    }
+
+    .table th,
+    .table td {
+        padding: 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .table th {
+        background-color: #0088cc;
+        color: #fff;
+    }
+
+    .table thead th h6 {
+        margin: 0;
+    }
+
+    .table tbody tr:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    .table tbody tr:nth-child(even) {
+        background-color: #ffffff;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .order-date {
+        width: 0.5%;
+        background-color: #f5f5f5;
+    }
+
+    .order-id {
+        width: 0.5%;
+        background-color: #f5f5f5;
+    }
+
+
+    .total-amount {
+        width: 0%;
+    }
+
+    .payment-method {
+        width: 1%;
+    }
+
+    .order-status {
+        width:0%;
+    }
+
+    .order-details {
+        width: 0%;
+    }
+</style>
+<%- include('../layout/footer.ejs') %>

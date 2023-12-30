@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OTP Verification</title>
+    <style>
+      
+.otp-container {
+    text-align: center;
+    margin: 50px auto;
+    width: 300px;
+    padding: 70px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+/* Style the heading */
+h1 {
+    font-size: 24px;
+    margin: 0;
+    color: #333;
+}
+
+/* Style the form elements */
+form {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Center the button within the container */
+button {
+    margin: 0 auto;
+    display: block;
+}
+</style>
+
+</head>
+<body>
+    <div class="otp-container">
+        <h1>OTP Verification</h1>
+        <p>Please enter the OTP sent to <%= userEmail %></p>
+
+        <form action="/verify-otp" method="post">
+            <input type="hidden" name="email" value="<%= userEmail %>">
+            <br>
+            <input type="text" id="otp" name="otp" required>
+            <br>
+            <% if(typeof message !== 'undefined') { %>
+                <p><%= message %></p>
+                <% } %>            
+
+            <button type="submit">Verify OTP</button>           
+        </form>
+        
+
+        <form action="/resend-otp" method="post">
+            <input type="hidden" name="email" value="<%= userEmail %>">
+            <button id="resend-button" type="submit" style="display: none;">Resend OTP</button>
+        </form>
+        <p id="otpTimer">00:30</p>
+       </div>
+</body>
+</html>
+
+<script>
+    let count = 30;                   
+    const timer = setInterval(function() {
+        count--;
+        const timerElement = document.getElementById('otpTimer');
+        timerElement.textContent = `00:${count < 10 ? '0' : ''}${count}`;
+
+        if (count === 0) {
+            clearInterval(timer);
+            document.getElementById('resend-button').style.display = 'block';
+        }
+    }, 1000);
+</script>

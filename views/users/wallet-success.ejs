@@ -1,0 +1,101 @@
+<%- include('../layout/header.ejs' )%>
+<div class="main">
+    <div class="container">
+      <div class="row margin-bottom-40">
+        <div class="col-md-12 col-sm-12">
+          <div class="goods-page">
+            <div class="goods-data clearfix">
+
+                    <div class="address-form">
+                        <h1><%= mess1 %></h1>
+                        <p class="order-confirmation"><%= message %></p>
+
+                        <a href="/wallet"><button class="cta-button">Your Wallet</button></a>
+                        <a href="/order-history"><button class="cta-button" type="submit"> ||   Order History</button></a>
+                        <p class="note"> If you have any questions, please contact our customer support.</p>
+                    </div>
+                
+            </div>
+            <a href="/users/home"><button class="btn btn-default" type="submit">|| Continue shopping <i class="fa fa-shopping-cart"></i></button></a>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+             
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f5f5f5;
+    }
+
+    .address-form {
+        max-width: 400px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgb(232, 235, 240);
+        border: 1px solid #3d53c2;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .order-confirmation {
+        font-size: 18px;
+        margin-top: 20px;
+    }
+
+    .order-summary {
+        margin-top: 30px;
+        border: 1px solid #ccc;
+        padding: 20px;
+    }
+
+    .order-number {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .order-details {
+        font-size: 16px;
+        margin-top: 20px;
+    }
+
+    .cta-button {
+        margin-top: 30px;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        text-transform: uppercase;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .cta-button:hover {
+        background-color: #56a3f6;
+    }
+
+    .note {
+        font-size: 14px;
+        color: #f71414;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 500px) {
+        .container {
+            padding: 10px;
+        }
+    }
+</style>
+ 
+<%- include('../layout/footer.ejs' )%>
+

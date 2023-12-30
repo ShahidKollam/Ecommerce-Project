@@ -1,0 +1,302 @@
+<%- include('../layout/adminHeader.ejs') %>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"  />
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+  <div class=" d-flex justify-content-center  " style="min-height: 100vh;">
+
+
+    <div style="min-height: 100vh; ">
+
+      <div class="container">
+        <div class="row">
+
+          <div class="d-flex justify-content-center p-5"><h1 class="fw-bold"><u>ADD PRODUCT</u></h1></div>
+          <form method="post" id="catForm" enctype="multipart/form-data" action="">
+
+            <div class="form-group">
+              <label for="category">Product Name</label>
+              <input name="product_name" onblur="" type="text" class=" form-control border border-dark"
+                id="category" placeholder="Category Name" required>
+              <span id="catNameValidationMessage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="category">Product Price</label>
+              <input name="product_price" type="number" class=" form-control border border-dark"
+                id="category" placeholder="Product Price" required>
+              <span id="catNameValidationMessage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="Product Stock">Product Stock</label>
+              <input name="product_stock" type="number" class=" form-control border border-dark"
+                id="category" placeholder="Product Stock" required>
+              <span id="catNameValidationMessage" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="catDescription">Description </label>
+              <textarea name="product_description" onblur="validateDescription()" class="form-control border border-dark"
+                id="catDescription" placeholder="Category Description" rows="3" required></textarea>
+              <span id="descriptionValidationMessage" class="text-danger">
+            </div>
+
+        </div>
+        
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select id="category" class="form-control border border-dark" name="product_category" required>
+            <option value="" disabled selected>Select a category</option>
+            <% category.forEach(function(category) { %>
+            <option value="<%= category._id %>"><%= category.name %></option>
+            <% }); %>
+          </select>
+        </div>
+  
+        <div class="form-group">
+          <label for="imageInput">Product Image</label>
+
+          <input name="" type="file" accept="image/*" class="form-control border border-dark" id="imageInput"
+                 required multiple onchange="previewImage(this);" onblur="validateImage()">
+         
+            <span id="imageValidationMessage" class="text-danger"> </span><br>
+         
+            <img id="imagePreview" class="p-1 m1" onerror="hideImg()" style="max-width: 100%; max-height: 200px;">
+            
+            <div id="imagePreviewContainer" class="d-flex flex-wrap"></div>
+
+            <i class="fa-regular fa-image fa-2xl  p-5 m-5" id="defaultIcon"></i>
+        </div>
+       
+        <div>
+          <button type="button" id="cropBtn" class="d-none btn border-dark btn-success" onclick="cropImage()">Crop</button>
+        </div>
+        
+        <div class="form-group py-3">
+          <input type="submit" class="btn btn-primary form-control border border-dark" onclick="return submitForm()"
+            id="exampleFormControlInput1">
+        </div>
+
+        </form>
+      </div>
+    </div>
+
+
+  </div>
+
+
+
+  <script>
+    const category = document.getElementById('category')
+    const catDescription = document.getElementById('catDescription')
+    let imageInput = document.getElementById('imageInput')
+    const imagePreview = document.getElementById('imagePreview')
+    const cropBtn = document.getElementById('cropBtn')
+    var categoryNameInput = document.getElementById('category')
+    var descriptionInput = document.getElementById('catDescription')
+    var validationMessage = document.getElementById('catNameValidationMessage');
+
+
+    let cropper  
+    let croppedDataUrl
+    let image
+    // let formData = new FormData()
+
+    
+    function hideImg() {
+      imagePreview.style.display = "none";
+
+    }
+    function previewImage(input) {
+
+      if(cropper){
+        cropper.destroy();
+      }
+
+
+      const defaultIcon = document.getElementById('defaultIcon');
+      cropBtn.classList.remove('d-none')
+      
+
+      let file = input.files[0]
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+          imagePreview.src = e.target.result;
+          defaultIcon.style.display = 'none'; // Hide the default icon
+          cropper = new Cropper(imagePreview, {
+            aspectRatio: 1,
+            viewMode: 2,
+            zoomable: false
+          })
+        };
+
+      } else {
+        imagePreview.src = '#'; // Clear the image if no file is selected
+        defaultIcon.style.display = 'block'; // Show the default icon
+
+      }
+    }
+    function cropImage() {
+      
+      croppedDataUrl = cropper.getCroppedCanvas().toDataURL('.image/jpeg');
+      cropper.getCroppedCanvas().toBlob(blob => {
+        image = blob;
+        
+      })
+      imagePreview.src = croppedDataUrl
+      cropper.destroy()
+      cropBtn.classList.add('d-none')
+    }
+    
+    function submitForm() {
+      event.preventDefault();
+      var isValidateCatName = validateCatName();
+      var isValidateDescription = validateDescription();
+      var isValidateImage = validateImage();
+
+      if (isValidateImage) {
+        let catForm = document.getElementById('catForm')
+        let formData = new FormData(catForm)
+        var fileName = imageInput.value.split('\\').pop();
+		
+        formData.append('product_image', image, fileName);
+        console.log('formData:', formData)
+        fetch('/admin/add-product', {
+          method: 'POST',
+          body: formData
+        })
+          .then(res => {
+            try {
+              console.log('res.status',res.status)
+              if (!res.ok) {
+              alert('Error! Please try again');
+              
+            }
+            return res.json(); // Assuming the response is JSON
+              
+            } catch (error) {
+              console.log(error)
+              
+            }
+            
+          })
+          .then(data => {
+            console.log('Then is a initiated')
+            console.log('data.error',data.error)
+            
+            if (data.error) {
+              console.log('Category already exists');
+              alert(data.error)
+              validationMessage.innerText = data.error; // Assuming there's an 'error' property in the response
+              setTimeout(() => {
+                validationMessage.innerText = '';
+              }, 10000);
+            } else if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'The Product is added',
+                }).then(() => {
+                    window.location.href = '/admin/add-product';
+                });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        
+      } else {
+        return false
+        
+      }
+    }
+  </script>
+
+  </div>
+  
+  <script>
+    
+  function validateCatName() {
+      var categoryName = categoryNameInput.value.trim();
+
+      var nameRegex = /^[a-zA-Z0-9]+$/;
+
+      // Check if the category name is empty or doesn't match the regex
+      if (categoryName.length < 3) {
+        validationMessage.innerText = 'Please Use Min 3 Chara';
+        categoryNameInput.style.border = '1px solid red';
+        return false;
+      } else if (categoryName.length > 15) {
+        validationMessage.innerText = 'Please Use Max 15 chara';
+        categoryNameInput.style.border = '1px solid red';
+        return false;
+      } else if (!nameRegex.test(categoryName)) {
+        validationMessage.innerText = 'Space & Special chara are not allowed';
+        categoryNameInput.style.border = '1px solid red';
+        return false;
+      } else if (categoryName[0] === ' ') {
+        validationMessage.innerText = 'Space in the  beginning';
+        categoryNameInput.style.border = '1px solid red';
+        return false;
+      } else {
+        validationMessage.innerText = '';
+        categoryNameInput.style.border = '';
+        return true;
+      }
+    }
+    function validateDescription() {
+
+      var description = descriptionInput.value.trim();
+      var validationMessage = document.getElementById('descriptionValidationMessage');
+      if (description.length === 0) {
+        validationMessage.innerText = 'Please provide a description.';
+        descriptionInput.style.border = '1px solid red';
+        return false;
+      } else if (description.length > 250) {
+        validationMessage.innerText = 'Description should not exceed 250 characters.';
+        descriptionInput.style.border = '1px solid red';
+        return false;
+      } else {
+        validationMessage.innerText = '';
+        descriptionInput.style.border = '';
+        return true;
+      }
+    }
+    function validateImage() {
+      var imageInput = document.getElementById('imageInput');
+      var validationMessage = document.getElementById('imageValidationMessage');
+      var allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif']; // Add or modify allowed file types
+
+      // Check if a file is selected
+      if (!imageInput.files || imageInput.files.length === 0) {
+        validationMessage.innerText = 'Please select an image.';
+        imageInput.style.border = '1px solid red';
+        return false;
+      }
+
+      // Check the file type
+      var fileType = imageInput.files[0].type;
+      if (!allowedFileTypes.includes(fileType)) {
+        validationMessage.innerText = 'Invalid file type. Please select a valid image (JPEG, PNG, GIF).';
+        imageInput.style.border = '1px solid red';
+        return false;
+      }
+
+      // Reset validation messages and borders if everything is valid
+      validationMessage.innerText = '';
+      imageInput.style.border = '';
+      return true;
+    }
+
+  </script>
+  
+<%- include('../layout/adminFooter.ejs') %>
+

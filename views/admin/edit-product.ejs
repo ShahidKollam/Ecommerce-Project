@@ -1,0 +1,246 @@
+<%- include('../layout/adminHeader.ejs') %>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<style>
+  .form-container {
+    width: 400px;
+    margin: 0 auto;
+    background-color: #65bbf0;
+    padding: 20px;
+    border: 1px solid #8facf1;
+    border-radius: 5px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  label {
+    display: block;
+    font-weight: bold;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #c88e8e;
+    border-radius: 3px;
+  }
+
+  input[type="file"] {
+    width: 100%;
+  }
+
+  .submit-btn {
+    text-align: left;
+  }
+
+  input[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .form-group.category {
+    margin-bottom: 20px;
+  }
+
+  label[for="category"] {
+    display: block;
+    font-weight: bold;
+  }
+
+  select#category {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e37272;
+    border-radius: 3px;
+  }
+
+  /* Style for the selected option (when the dropdown is not focused) */
+  select#category option {
+    background-color: #878484;
+    color: #e8e5e5;
+  }
+
+  /* Style for the selected option (when the dropdown is focused) */
+  select#category:focus option:checked {
+    background-color: #007bff;
+    color: #7b7979;
+  }
+  .delete-icon {
+    cursor: pointer;
+    color: red;
+    font-size: 18px;
+    margin-left: 5px;
+  }
+  
+</style>
+<style>
+  .form-group.product-image {
+    margin-bottom: 20px;
+  }
+
+  .image-preview {
+    display: inline-block;
+    position: relative;
+    margin-right: 10px;
+    margin-bottom: 10px;
+  }
+
+  .image-preview img {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  .delete-icon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    cursor: pointer;
+    color: rgb(30, 29, 29);
+    font-size: 18px;
+    background-color: rgb(249, 247, 247);
+    border: 1px solid #ddd;
+    border-radius: 20%;
+    padding: 5px;
+    transition: background-color 0.3s; /* Add a smooth transition effect */
+  }
+
+  /* Hover effect */
+  .delete-icon:hover {
+    background-color: rgb(11, 11, 11);
+    color: rgb(249, 5, 5);
+  }
+</style>
+
+
+<section class="section">
+  <div class="container-fluid">
+    <div class="title-wrapper pt-30">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="title">
+            <h2>Edit Product</h2>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="breadcrumb-wrapper">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a href="">Dashboard</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  Edit Product
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-style col-5 ml-15">
+    <h1>Edit Product</h1><br>
+
+    <form action="/admin/edit-product?id=<%= product._id %>" method="post" class="reg-form" enctype="multipart/form-data">
+      <input type="hidden" name="id" value="<%= product._id %>">
+      <div class="form-group product-name">
+        <label for="name">Product Name</label>
+        <input type="text" id="name" name="product_name" placeholder="Enter" value="<%=product.name %>" >
+      </div>
+
+      <div class="form-group category">
+        <label for="category">Category</label>
+        <select id="category" name="product_category" required>
+          <option value="<%=product.category._id %>"><%=product.category.name %></option>
+          <% category.forEach(function(category) { %>
+          <option value="<%= category._id %>"><%= category.name %></option>
+          <% }); %>
+        </select>
+      </div>
+
+      <div class="form-group price">
+        <label for="price">Price</label>
+        <input type="text" id="price" name="product_price" placeholder="Enter product price" value="<%=product.price %>" >
+      </div>
+
+      <div class="form-group stock">
+        <label for="stock">Stock</label>
+        <input type="text" id="stock" name="product_stock" placeholder="Enter stock limit"  value="<%=product.quantity %>">
+      </div>
+
+      <div class="form-group description">
+        <label for="description">Description</label>
+        <textarea id="description" name="product_description" style="height: 150px;" placeholder="Enter  description" ><%=product.description %></textarea>
+      </div>
+
+
+  <div class="form-group product-image">
+    <label for="image">Current Image:</label>
+    <% if (imageUrls && imageUrls.length > 0) { %>
+      <% for (let i = 0; i < imageUrls.length; i++) { %>
+        <% const uniqueImageUrls = Array.from(new Set(imageUrls[i])); %>
+        <% for (let j = 0; j < uniqueImageUrls.length; j++) { %>
+          <div class="image-preview" data-image-url="<%= uniqueImageUrls[j] %>">
+            <img src="<%= uniqueImageUrls[j] %>" width="<%= j === 0 ? '113px' : '100px' %>" height="100px" alt="Product Image">
+            <span class="delete-icon delete-image">&#10006;</span>
+          </div>
+        <% } %>
+      <% } %>
+    <% } %>
+       
+  <input type="file" name="product_image" class="form-control" id="product_image" accept="image/*" multiple>
+  <br><br>
+
+      <div class="form-group submit-btn">
+        <input type="submit" value="Update">
+      </div>
+    </form>   
+  </div>
+  
+</section>
+
+<script>
+  $(document).ready(function() {
+    var deletedImages = [];
+  
+    $('.delete-image').on('click', function(event) {
+      event.preventDefault();
+  
+      var imageContainer = $(this).closest('.image-preview');
+  
+      var imageUrl = imageContainer.data('image-url');
+  
+      var filename = imageUrl.split('/').pop();
+      if (!deletedImages.includes(filename)) {
+        imageContainer.remove();
+        deletedImages.push(filename);
+      }
+    });
+    $('form.reg-form').submit(function() {
+      var uniqueDeletedImages = new Set(deletedImages);
+  
+      var uniqueDeletedImagesArray = Array.from(uniqueDeletedImages);
+      var hiddenInput = $('<input>').attr({
+        type: 'hidden',
+        id: 'deletedImages',
+        name: 'deletedImages',
+        value: JSON.stringify(uniqueDeletedImagesArray)
+      });
+  
+      $(this).append(hiddenInput);
+    }); 
+  });
+  
+  </script>
+  
+<%- include('../layout/adminFooter.ejs') %>

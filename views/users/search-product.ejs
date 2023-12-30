@@ -1,0 +1,285 @@
+<%- include('../layout/header.ejs') %>
+
+<div class="product-page">
+    <div class="sidebar">
+        <h3>Filter By:</h3>
+        <form action="/users/filter" method="post">
+            <div class="form-group category">
+                <label for="category">Category :</label>
+                <select id="category" name="filter" required>
+                    <option value="" disabled selected>Select</option>
+                    <% category.forEach(function(category) { %>
+                        <option value="<%= category._id %>" <%= category._id.toString() === filter_id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+            <button class="button" type="submit">Apply Filter</button>
+        </form>
+
+        <hr>
+
+        <div class="filter-options">
+            <h3>Sort By:</h3>
+            <form id="sortForm" action="/users/search" method="post">
+                <label><input type="radio" name="sort" value="price_high"> Price High - Low</label>
+                <label><input type="radio" name="sort" value="price_low"> Price Low - High</label>
+                <label><input type="radio" name="sort" value="rating"> Rating High</label>
+                <label><input type="radio" name="sort" value="rating"> Rating Low</label><br>
+                <input type="hidden" name="filter_id" value="<%= filter_id %>">
+                <button type="button" class="button" onclick="applySort()">Apply Sort</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="product-list" id="productList">
+        <% for (i = 0; i < products.length; i++) { %>
+            <div class="product-card">
+                <a href="/users/item-single?id=<%= products[i]._id %>">
+                    <div class="pi-img-wrapper">
+                        <img
+                            src="<%= imageUrl[i][0] %>"
+                            width="100%"
+                            height="auto"
+                            alt="<%= products[i].name %>"
+                        >
+                    </div>
+                </a>
+                <h3><%= products[i].name %></h3>
+                <p><%= products[i].category.name %></p>
+                <span class="product-price">₹<%= products[i].price %></span><br>
+
+                <form action="/add-to-cart" method="POST">
+                    <input type="hidden" name="product_id" value="<%= products[i]._id %>">
+                    <button type="submit">Add to Cart 🛒 </button>
+                </form>
+            </div>
+        <% }; %>
+    </div>
+
+    <div class="pagination-container">
+        <div class="pagination">
+            <ul>
+                <!-- Previous Page -->
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= Math.max(currentPage - 1, 1) %>&search=<%= filter_id %>&sort=<%= sortOption %>">&laquo; Prev</a>
+                </li>
+
+                <!-- Page Numbers -->
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="page-item">
+                        <a class="page-link" href="?page=<%= i %>&search=<%= filter_id %>&sort=<%= sortOption %>"><%= i %></a>
+                    </li>
+                <% } %>
+
+                <!-- Next Page -->
+                <li class="page-item">
+                    <a class="page-link" href="?page=<%= Math.min(currentPage + 1, totalPages) %>&search=<%= filter_id %>&sort=<%= sortOption %>">Next &raquo;</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+
+    .product-list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .product-card {
+        width: 22%;
+        height: 375px;
+        margin: 1%;
+        border: 3px solid #b3b3b3;
+        padding: 1px;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+        overflow: hidden;
+}
+
+
+    .product-card:hover {
+        transform: scale(1.05);
+    }
+
+    .product-card img {
+        max-width: 100%; 
+        height: 227px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 8px; 
+    }
+
+    .product-card h3 {
+        font-size: 2.2rem; /* Adjusted font size for better fit */
+        margin: 8px 0;
+        color: #333;
+    }
+
+    .product-card p {
+        font-size: 1.4rem; 
+        color: #666;
+        margin-bottom: 8px; 
+    }
+
+    .product-price {
+        font-size: 1.9rem; 
+        color: #f00;
+    }
+
+    button {
+        width: 100%; 
+        height: 40px; 
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1.6rem;
+        transition: background-color 0.3s;
+        border-radius: 5px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .sidebar {
+        float: left;
+        width: 16%;
+        padding: 12px;
+        background-color: #f5f5f5;
+    }
+
+    .separator {
+        border-left: 1px solid #f9f7f7;
+        height: 200%;
+        position: absolute;
+        left: 20%;
+        z-index: 1;
+    }
+
+    .filter-options {
+        width: 100%; /* Set width to 100% for full width */
+        margin-bottom: 10px;
+    }
+
+    .filter-options label {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .filter-options h3 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .filter-options button {
+        width: 100%; /* Set width to 100% for full width */
+        padding: 8px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1.6rem;
+        transition: background-color 0.3s;
+        border-radius: 5px;
+    }
+
+    .filter-options button:hover {
+        background-color: #0056b3;
+    }
+
+    .filter-controls {
+    display: flex;
+    }
+
+    .filter-controls button {
+        width: 100%;
+    }
+
+    .pagination-container {
+        text-align: center;
+        margin-top: 0px;
+    }
+
+    .pagination {
+        margin: 20px 0;
+        display: inline-block; 
+    }
+
+    .pagination ul {
+        list-style: none;
+        padding: 0;
+        display: inline-block;
+    }
+
+    .pagination li {
+        display: inline-block; 
+        margin: 0 5px;
+    }
+
+    .pagination a {
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #060606;
+        background-color: #e9e7e7;
+        color: #333;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .pagination a:hover {
+        background-color: #333;
+        color: #fff;
+    }
+.button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 17.5px;
+  transition: background-color 0.3s; /* Smooth transition effect for background color */
+}
+
+.button:hover {
+  background-color: #033b78; /* Change the background color on hover */
+}
+
+.cart-symbol {
+  margin-left: 10px;
+  font-size: 20px;
+}
+    
+</style>
+<script>
+    function applySort() {
+        const selectedSort = document.querySelector('input[name="sort"]:checked');
+        const filterId = document.querySelector('input[name="filter_id"]').value;
+
+        if (selectedSort) {
+            const sortInput = document.createElement('input');
+            sortInput.type = 'hidden';
+            sortInput.name = 'selectedSort';
+            sortInput.value = selectedSort.value;
+
+            // Add filter_id as a hidden input
+            const filterInput = document.createElement('input');
+            filterInput.type = 'hidden';
+            filterInput.name = 'search';
+            filterInput.value = filterId;
+
+            document.getElementById('sortForm').appendChild(sortInput);
+            document.getElementById('sortForm').appendChild(filterInput);
+            document.getElementById('sortForm').submit();
+        } else {
+            console.log('Please select a sort option');
+        }
+    }
+</script>
+
+<%- include('../layout/footer.ejs') %>

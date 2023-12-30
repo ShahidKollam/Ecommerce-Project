@@ -1,0 +1,303 @@
+<%- include('../layout/header.ejs') %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<div class="container">
+    <form method="post" action="/place-order">
+        <h1 class="text-black">Checkout</h1>
+        <div class="row">
+            <div class="col-md-4 address-box">
+                <h3>Select Address</h3>
+                <div class="form-group">
+                    <% if (address.length > 0) { 
+                        for (let i = 0; i < address.length; i++) {   
+                    %>
+                    <label class="address-label">
+                        <input type="radio" name="selectedAddress" id="address<%= i %>" value="<%= address[i]._id %>" required>
+                        <strong class="text">Address <%= i + 1 %></strong>
+                    </label>
+                    <div class="address-details text-black">
+                        <p><%= address[i].name %></p>
+                        <p><%= address[i].house %>, <%= address[i].street %></p>
+                        <p><%= address[i].pin %>, <%= address[i].city %>, <%= address[i].state %>.</p>
+                    </div>
+                    <% } } else {  %>
+                    <p class="no-address">Please Add Address</p>
+                    <% } %>
+                </div>
+                <a href="/address" class="add-address-link">
+                    <button type="button" class="btn btn-success col-6">Add New Address</button>
+                </a>
+            </div>
+            <div class="col-md-8 order-summary-box">
+                <h3>Order Summary & Bill</h3>
+                <table class="table table-bordered table-white">
+                    <thead>
+                        <tr>
+                            <th class="text-black">Product</th>
+                            <th class="text-black">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% let subtotal = 0;
+                        if (cart.length > 0) { 
+                            for (let i = 0; i < cart.length; i++) {
+                                let discountedPrice = cart[i].product_id.price - (cart[i].product_id.price * (cart[i].product_id.offer / 100));
+                                let total = cart[i].quantity * discountedPrice ;
+                                subtotal += total
+                            %>
+                            <tr>
+                                <td><%= cart[i].name %> × <%= cart[i].quantity %></td>
+                                <input type="hidden" name="orderItems_id" value="<%= cart[i]._id %>">
+                                <td class="text">₹<%= total %></td>
+                            </tr>
+                            <input type="hidden" name="orderItems[<%= i %>][image]" value="<%= cart[i].image %>">
+                            <input type="hidden" name="orderItems[<%= i %>][name]" value="<%= cart[i].name %>">
+                            <input type="hidden" name="orderItems[<%= i %>][product]" value="<%= cart[i].product_id._id %>">
+                            <input type="hidden" name="orderItems[<%= i %>][quantity]" value="<%= cart[i].quantity %>">
+                            <input type="hidden" name="orderItems[<%= i %>][pricePerOrdrItem]" value="<%= discountedPrice %>">
+
+                            <%  } } %>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="text-black">Subtotal</td>
+                            <td class="text-black">₹<%= subtotal %></td>
+                        </tr>
+                        <tr>
+                            <td class="text-black">Delivery Charge</td>
+                            <td class="text-black">₹<%= 10 %></td>
+                        </tr>
+                        <tr>    
+                            <td class="text-black">Discount</td>
+                            <td class="text-black" id="discountAmountDisplay">₹<%= 0 %></td>
+                        </tr>
+                        <tr>
+                            <td class="text-black">Total</td>
+                            <td class="text-danger" id="totalAmountDisplay"><strong>₹<%= subtotal + 10 %></strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <input type="hidden" name="selectAddress" id="selectedAddress" value="">
+                <input type="hidden" name="total" id="totalAmount" value="<%=(subtotal + 10)%>">
+                <input type="hidden" name="discount" id="discount" value="<%= 0 %>">
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="couponCode" class="text-success">Enter your coupon</label>
+                        <div class="input-group">
+                            <input type="text" name="couponCode" class="form-control" placeholder="Enter your coupon code" id="couponCodeInput" maxlength="5">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-info" id="getCouponBtn">Get Coupon</button>
+                            </span>
+                        </div>
+                        <div id="couponMessage"></div>
+                    </div>
+
+                <script>
+    
+                    document.addEventListener('DOMContentLoaded', async function () {
+
+                    const applyCouponBtn = document.getElementById('getCouponBtn');
+                    const couponMessage = document.getElementById('couponMessage');
+                    const totalAmount = document.getElementById('totalAmount').value;
+    
+                    applyCouponBtn.addEventListener('click', async () => {
+
+                        try {
+                            const response = await fetch('/get-coupon', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({ totalAmount }),
+                            });
+
+                            if (!response.ok) {
+                                couponMessage.innerHTML = '<div class="alert alert-danger" role="alert">Error getting coupon. Please try again later.</div>';
+                            }
+
+                            const data = await response.json();
+
+                            if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: `Coupon Code: ${data.coupon.couponCode}`,
+                                    text:  `Coupon above ${data.coupon.minPurchaseAmount}rs Purchase only!`,
+                                    confirmButtonText: 'Copy Code',
+                                    showCancelButton: true,
+                                    cancelButtonText: 'Close',
+                                    preConfirm: () => {
+                                        const couponCode = data.coupon.couponCode;
+                                        copyToClipboard(couponCode);
+
+                                    }
+                                });
+
+                                function copyToClipboard(text) {
+                                    const textarea = document.createElement('textarea');
+                                    textarea.value = text;
+                                    document.body.appendChild(textarea);
+                                    textarea.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(textarea);
+                                }
+
+                                couponMessage.innerHTML = `<div class="alert alert-success" role="alert">${data.coupon.discountAmount}% Discount Coupon. Check !.</div>`;
+                            } else {
+                                couponMessage.innerHTML = '<div class="alert alert-info" role="alert">You are not eligible for coupon.</div>';
+                            }
+                        } catch (error) {
+                            console.error('Error verifying coupon:', error);
+                            couponMessage.innerHTML = '<div class="alert alert-danger" role="alert">Error getting coupon. Please try again later.</div>';
+                        }
+                    });
+
+
+                        const couponCodeInput = document.getElementById('couponCodeInput');
+                        
+                        couponCodeInput.addEventListener('input', async function () {
+                            const couponCode = couponCodeInput.value.trim();
+                
+                            
+                            if (couponCode.length !== 5) {
+                                couponMessage.innerHTML = '<div class="alert alert-info" role="alert">Coupon code must be 5 characters long.</div>';
+                                return;
+                            }
+                
+                            try {
+                                const response = await fetch('/verify-coupon', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                    },
+                                    body: JSON.stringify({ couponCode, totalAmount }),
+                                });
+                
+                                if (!response.ok) {
+                                    couponMessage.innerHTML = '<div class="alert alert-danger" role="alert">Error verifying coupon. Please try again later.</div>';
+                                }
+                
+                                const data = await response.json();
+
+                                // Handle the response from the server
+                                if (data.success) {
+                                    couponMessage.innerHTML = '<div class="alert alert-success" role="alert">Coupon is valid!</div>';
+
+                                    // Display the discount amount in the specified HTML element
+                                    const discountAmountDisplay = document.getElementById('discountAmountDisplay');
+                                    if (discountAmountDisplay) {
+                                        discountAmountDisplay.innerHTML = `₹${data.discountAmount}`;
+                                    }
+                                    const totalAmountDisplay = document.getElementById('totalAmountDisplay');
+                                    if (totalAmountDisplay) {
+                                        const finalAmount = totalAmount - data.discountAmount
+                                        totalAmountDisplay.innerHTML = `₹${finalAmount}`;
+                                    }
+                                    const discountInput = document.getElementById('discount');
+                                    discountInput.value = data.discountAmount;
+
+                                } else {
+                                    // If data.errors is an array, join its elements into a string
+                                    const errorMessage = Array.isArray(data.errors) ? data.errors.join(', ') : data.errors;
+
+                                    couponMessage.innerHTML = `<div class="alert alert-danger" role="alert">${errorMessage}.</div>`;
+                                }
+
+                            } catch (error) {
+                                console.error('Error verifying coupon:', error);
+                                couponMessage.innerHTML = '<div class="alert alert-danger" role="alert">Error verifying coupon. Please try again later.</div>';
+                            }
+                        });
+                
+                    });
+                </script>
+                
+                
+                
+                <div class="form-group col-lg-6">
+                    <label class="text-success">Select Payment Method:</label>
+                    <select name="paymentMethod" class="form-control text-success">
+                        <option value="RazorPay">RazorPay</option>
+                        <option value="PayPal">PayPal</option>
+                        <option value="Wallet">Wallet</option>
+                        <option value="Cash On Delivery">Cash On Delivery</option>
+                    </select><div><br></div>
+                    <button type="submit" id="placeOrder" class="btn btn-success col-md-6 float-right">Place Order</button>
+
+                </div>
+            </div>
+        </div>
+        </div>
+    </form>
+</div>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const radioButtons = document.querySelectorAll('input[type="radio"][name="selectedAddress"]');
+        const hiddenInput = document.getElementById('selectAddress');
+
+        function areOrderItemsSelected() {
+            const orderItems = document.querySelectorAll('input[name^="orderItems["]');
+            return Array.from(orderItems).some(item => item.value !== '');
+        }
+
+        radioButtons.forEach(function (radioButton) {
+            radioButton.addEventListener("change", function () {
+                if (this.checked) {
+                    hiddenInput.value = this.value;
+                }
+            });
+        });
+
+        const placeOrderButton = document.getElementById('placeOrder');
+        placeOrderButton.addEventListener('click', function (event) {
+            if (!areOrderItemsSelected()) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Please select a Product!',
+                });
+                event.preventDefault();
+            }
+        });
+    });
+</script>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        color: #495057;
+    }
+
+    .address-box,
+    .order-summary-box {
+        border: 1px solid #c8c7c7;
+        background-color: #fff;
+        margin-bottom: 20px;
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .address-label {
+        display: block;
+        margin-bottom: 15px;
+    }
+
+    .address-details p {
+        margin: 5px 0;
+        background-color: rgb(236, 243, 249)
+    }
+
+    .no-address {
+        color: #dc3545;
+        margin: 10px 0;
+    }
+
+    .add-address-link {
+        text-decoration: none;
+    }
+</style>
+
+<%- include('../layout/footer.ejs') %>

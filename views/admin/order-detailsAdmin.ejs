@@ -1,0 +1,94 @@
+<%- include('../layout/adminHeader.ejs') %>
+
+<style>
+    body { background-color: #f5f5f5; }
+    .card { margin-bottom: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    .card-header { background-color: #007BFF; color: #fff; border-bottom: 2px solid #0056b3; border-radius: 8px 8px 0 0; }
+    .card-title { font-size: 20px; }
+    .list-group-item { border: 1px solid #dee2e6; }
+    .media { border-bottom: 1px solid #dee2e6; padding-bottom: 15px; margin-bottom: 15px; }
+    .card-body { padding: 15px; }
+    .media img { max-width: 100px; border: 1px solid #dee2e6; border-radius: 5px; margin-right: 15px; }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Order Items</h2>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <% if (order) { %>
+                        <% for (let j = 0; j < order.orderItems.length; j++) { %>
+                            <li class="list-group-item">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <img src="" width="100px" height="100px" class="img-fluid rounded" alt="Product Image">
+                                    </div>
+                                    <div class="media-body min-width">
+                                        <h4 class="mt-0">Product Name: <%= order.orderItems[j].product.name %></h4>
+                                        <h4>Quantity: <%= order.orderItems[j].quantity %></h4>
+                                        <h4>Category: <%= order.orderItems[j].product.category.name %></h4>
+                                        <h4>Price per unit: <%= order.orderItems[j].pricePerOrdrItem %></h4>
+                                    </div>
+                                </div>
+                            </li>
+                        <% } %>
+                    <%  } else { %>
+                        <li class="list-group-item">
+                            Product not found
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Order Information</h2>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Order ID: <%=order.orderID %></h5>
+                    <h5 class="card-text">Order Date: <%= (new Date(order.orderDate)).toLocaleDateString('en-GB') %></h5>
+                    <h5 class="card-text">Payment Method: <%=order.paymentMethod %></h5>
+                    <h5 class="card-text">Order Status: <%=order.status %></h5>
+                    <h5 class="card-text">Shipping Address: <%= order.shippingAddress.house %></h5>
+                    <h6 class="card-text">PIN: <%= order.shippingAddress.pin %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state%>.</h6>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Bill</h2>
+                </div>
+                <div class="card-body">
+                    <% if (order) { %>
+                    <div class="media-body">
+                        <h5 class="card-text">Subtotal: <%= order.totalAmount %></h5>
+                        <h5 class="card-text">Shipping: 10.00</h5><br>
+                        <h3 class="card-text" style="color: red;">Total Amount: <%= order.totalAmount + 10 %></h3>
+                    </div>
+                    <!-- <div class="media-right">
+                        <form action="" method="">
+                            <input type="hidden" name="order_id" value="<%= order._id %>">
+                            <input type="hidden" name="paymentMethod" value="<%= order.paymentMethod %>">
+                            <button id="cancelButton" class="btn btn-success btn-lg" type="submit" disabled>Cancel  </button><br><br>
+                            <button id="returnButton" class="btn btn-primary btn-lg" type="submit" disabled>RETURN </button>
+                        </form>
+                        <br>
+
+                    <% } else { %>
+                        <p>Product not found, unable to calculate the bill.</p>
+                    <% } %>
+                </div> -->
+                </div>		
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+
+<%- include('../layout/adminFooter.ejs') %>

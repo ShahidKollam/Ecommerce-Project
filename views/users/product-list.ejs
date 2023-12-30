@@ -1,0 +1,314 @@
+<%- include('../layout/header.ejs') %>
+
+<div class="product-page">
+    <div class="sidebar">
+        <h4>Search Product:</h4>
+        <form action="/users/filter" method="post">
+            <div class="form-group category">
+                <input type="text" class="form-control" value="" name="search" placeholder="search">
+            </div>
+            <button class="button" type="submit">Search Product</button>
+        </form>
+
+        <hr>
+
+        <h4>Filter By:</h4>
+        <form action="/users/filter" method="post">
+            <div class="form-group category">
+                <label for="category">Category :</label>
+
+                <select id="category" name="filter_id" required>
+                    <option value="" disabled selected>Select</option>
+                    
+                    <% category.forEach(function(category) { %>
+                        <option value="<%= category._id %>" ><%= category.name %></option>
+                        <% }); %>
+                </select>
+            </div>
+            <button class="button" type="submit">Apply Filter</button>
+        </form>
+
+        <hr>
+
+        <div class="filter-options">
+            <h3>Sort By:</h3>
+            <form id="sortForm" action="/users/filter" method="post">
+                <label><input type="radio" name="sort" value="price_high"> Price High - Low</label>
+                <label><input type="radio" name="sort" value="price_low"> Price Low - High</label>
+                <label><input type="radio" name="sort" value="rating"> Rating High</label>
+                <label><input type="radio" name="sort" value="rating"> Rating Low</label><br>
+
+                <button type="submit" class="button" onclick="">Apply Sort</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="product-list" id="productList">
+        <% for (i = 0; i < products.length; i++) { %>
+        <% let discountedPrice = products[i].price - (products[i].price * (products[i].offer / 100)); %>
+        <% let discountedPriceCat = products[i].price - (products[i].price * (products[i].category.CatOffer / 100)); %>
+
+            <div class="product-card">
+                <a href="/users/item-single?id=<%= products[i]._id %>">
+                    <div class="pi-img-wrapper">
+                        <img
+                            src="<%= imageUrl[i][0] %>"
+                            width="100%"
+                            height="auto"
+                            alt="<%= products[i].name %>"
+                        >
+                    </div>
+                </a>
+                
+                <h3><%= products[i].name %></h3>
+
+                <% if (products[i].offer > 0) { %>
+
+                    <p><%= products[i].category.name %></p>
+                    <span class="product-price"><del>₹<%= products[i].price %></del></span>
+                    <p class="text-primary">[<%=products[i].offer%>%] Offer Price: <strong>₹<%= discountedPrice %></strong> </p>
+
+                <% } else if (products[i].category.CatOffer > 0) { %>
+
+                    <p><%= products[i].category.name %></p>
+                    <span class="product-price"><del>₹<%= products[i].price %></del></span>
+                    <p class="text-primary">[<%=products[i].category.CatOffer%>%] Offer Price: <strong>₹<%= discountedPriceCat %></strong> </p>
+                
+                <% } else { %>
+
+                    <p><%= products[i].category.name %></p>
+                    <span class="product-price">₹<%= products[i].price %></span>
+                    <p>No Offer Available</p>
+
+                <% } %>          
+
+                  
+
+                <form action="/add-to-cart" method="POST">
+                    <input type="hidden" name="product_id" value="<%= products[i]._id %>">
+                    <button type="submit">Add to Cart 🛒 </button>
+                </form>
+                <button class="btn-success" onclick="addToWishlist('<%= products[i]._id %>')">Add to Wishlist 🖤</button>
+            </div>
+        <% }; %>
+    </div>
+</div>
+
+<style>
+    .product-list {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .product-card {
+        width: 22%;
+        height: 438px;
+        margin: 1%;
+        border: 3px solid #b3b3b3;
+        padding: 1px;
+        text-align: center;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease-in-out;
+        overflow: hidden;
+}
+
+
+    .product-card:hover {
+        transform: scale(1.05);
+    }
+
+    .product-card img {
+        max-width: 100%; 
+        height: 227px;
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 8px; 
+    }
+
+    .product-card h3 {
+        font-size: 2.2rem; /* Adjusted font size for better fit */
+        margin: 8px 0;
+        color: #333;
+    }
+
+    .product-card p {
+        font-size: 1.4rem; 
+        color: #666;
+        margin-bottom: 8px; 
+    }
+
+    .product-price {
+        font-size: 1.7rem; 
+        color: #f00;
+    }
+
+    button {
+        width: 100%; 
+        height: 40px; 
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1.6rem;
+        transition: background-color 0.3s;
+        border-radius: 5px;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+
+    .sidebar {
+        float: left;
+        width: 16%;
+        padding: 7px;
+        background-color: #f5f5f5;
+    }
+
+    .separator {
+        border-left: 1px solid #f9f7f7;
+        height: 200%;
+        position: absolute;
+        left: 20%;
+        z-index: 1;
+    }
+
+    .filter-options {
+        width: 100%; /* Set width to 100% for full width */
+        margin-bottom: 10px;
+    }
+
+    .filter-options label {
+        display: block;
+        margin-bottom: 8px;
+    }
+
+    .filter-options h3 {
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .filter-options button {
+        width: 100%; /* Set width to 100% for full width */
+        padding: 8px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        font-size: 1.6rem;
+        transition: background-color 0.3s;
+        border-radius: 5px;
+    }
+
+    .filter-options button:hover {
+        background-color: #0056b3;
+    }
+
+    .filter-controls {
+    display: flex;
+    }
+
+    .filter-controls button {
+        width: 100%;
+    }
+
+    .pagination-container {
+        text-align: center;
+        margin-top: 0px;
+    }
+
+    .pagination {
+        margin: 20px 0;
+        display: inline-block; 
+    }
+
+    .pagination ul {
+        list-style: none;
+        padding: 0;
+        display: inline-block;
+    }
+
+    .pagination li {
+        display: inline-block; 
+        margin: 0 5px;
+    }
+
+    .pagination a {
+        text-decoration: none;
+        padding: 5px 10px;
+        border: 1px solid #060606;
+        background-color: #e9e7e7;
+        color: #333;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .pagination a:hover {
+        background-color: #333;
+        color: #fff;
+    }
+.button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 17.5px;
+  transition: background-color 0.3s; /* Smooth transition effect for background color */
+}
+
+.button:hover {
+  background-color: #033b78; /* Change the background color on hover */
+}
+
+.cart-symbol {
+  margin-left: 10px;
+  font-size: 20px;
+}
+    
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<script>
+    const errorMessage = "<%= message %>";
+
+    if (errorMessage) { 
+      Toastify({
+        text: errorMessage,
+        duration: 5000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "linear-gradient(to right, #e53935, #d32f2f)",
+        stopOnFocus: true, // Stop timeout when the toast is hovered
+        className: "error-toast", // Add a custom class for styling
+      }).showToast();
+    };
+
+    async function addToWishlist(productId) {
+        try {
+            const response = await fetch('/add-wishlist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId }),
+            });
+
+            if (response.ok) {
+                alert('Added to Wishlist!');
+            } else {
+                const errorMessage = await response.json();
+                alert(`Error adding to Wishlist: ${errorMessage.error}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+</script>
+
+<%- include('../layout/footer.ejs') %>

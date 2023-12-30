@@ -1,0 +1,139 @@
+<%- include('../layout/header.ejs') %>
+
+<style>
+    /* Custom CSS for styling */
+    body {
+        background-color: #f5f5f5;
+        font-family: 'Roboto', sans-serif;
+    }
+    .card {
+        margin-bottom: 20px;
+        border: 1px solid #dee0e2;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-color: #007BFF;
+        color: #fff;
+        border-bottom: 2px solid #0056b3;
+        border-radius: 8px 8px 0 0;
+        text-align: center; /* Center the text */
+    }
+    .card-title {
+        font-size: 24px;
+    }
+    .list-group-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .media {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+        display: flex; /* Align items horizontally */
+        align-items: center; /* Center items vertically */
+        justify-content: center; /* Center items horizontally */
+    }
+    .media-left {
+        margin-right: 15px;
+    }
+    .card-body {
+        padding: 15px;
+    }
+    .media img {
+        max-width: 100px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="">My Wishlist</h1>
+                </div>
+
+                <ul class="list-group list-group-flush">
+                    <% if (order.length > 0) { %>
+                        <% for (let j = 0; j < order.length; j++) { %>
+                            <li class="list-group-item">
+                                <div class="media">
+                                    <div class="media-left">
+                                        <img src="<%= imageUrl[j][0] %>" width="100px" height="100px" class="img-fluid rounded" alt="Product Image">
+                                    </div>
+                                    <div class="media-body min-width">
+                                        <h2 class="mt-0">Product Name: <%= order[j].product_id.name %></h2>
+                                        <h2>Product Category: <%= order[j].product_id.category.name %></h2>
+                                        <h2>Product Price: <%= order[j].product_id.price %></h2>
+                                        <h2>Available Quantity: <%= order[j].product_id.quantity %></h2>
+
+                                    </div>
+
+                                    <div class="media-right">
+                                        <div class="btn" role="group">
+                                            <form action="/add-to-cart" method="POST">
+                                                <input type="hidden" name="product_id" value="<%= order[j].product_id._id %>">
+                                                <button class="btn btn-success" type="submit">Add to Cart </button><br><br>
+                                            </form>
+                                            <button type="button" class="btn btn-danger" onclick="removeItem('<%= order[j].product_id._id %>')">Remove item</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </li>
+                        <% } %>
+                    <%  } else { %>
+                        <li class="list-group-item">
+                            <h1>No Items in Wishlist</h1>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const message = urlParams.get('message');
+
+    if (message) { 
+      Toastify({
+        text: `${message}`, 
+        duration: 5000,
+        gravity: "top",
+        position: "center",
+        backgroundColor: "linear-gradient(to right, #4CAF50, #45a049)",
+        stopOnFocus: true, 
+        className: "success-toast",
+      }).showToast();
+    }
+    async function removeItem(productId) {
+        try {
+            const response = await fetch('/remove-item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ product_id: productId }),
+            });
+
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                alert(`Error: ${errorMessage}`);
+            } else {
+                const responseData = await response.json();
+                window.location.href = '/wishlist?message=Item Removed';
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+</script>
+
+<%- include('../layout/footer.ejs') %>

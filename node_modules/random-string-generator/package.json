@@ -1,0 +1,33 @@
+{
+  "name": "random-string-generator",
+  "version": "1.0.1",
+  "description": "Javascript random string generator, the length and scope can be custom defined.",
+  "main": "dist/random.cjs",
+  "exports": {
+    "import": "./dist/random.mjs",
+    "require": "./dist/random.cjs"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "rollup -c"
+  },
+  "keywords": [
+    "random",
+    "length",
+    "scope"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yuhenabc/random.git"
+  },
+  "author": "yuhenabc",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@rollup/plugin-typescript": "^8.3.1",
+    "jest": "^27.5.1",
+    "rollup": "^2.70.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.6.2"
+  }
+}

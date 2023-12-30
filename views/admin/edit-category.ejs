@@ -1,0 +1,66 @@
+<%-include('../layout/adminHeader')%>
+      <style>
+  /* Style the button */
+  .add-category-button {
+      background-color: rgb(52, 194, 250);
+      color: rgb(0, 0, 0);
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+  }
+
+  /* Style the input field */
+  .category-input {
+      width: 400px;
+      padding: 10px;
+      border: 1px solid rgb(45, 188, 245);
+      border-radius: 5px;
+      font-size: 16px;
+  }
+      
+      </style>
+
+      <section class="section">
+        <div class="container-fluid">
+          <!-- ========== title-wrapper start ========== -->
+          <div class="title-wrapper pt-30">
+            <div class="row align-items-center">
+              <div class="col-md-6">
+                <div class="title">
+                    <h3>Edit Category</h3><br>
+                    <div><form action="/admin/edit-category?id=<%= category._id %>" method="post">
+                        <input type="text" class="category-input" id="category" name="categoryName" 
+                        placeholder="Enter"  value="<%= category.name %>" >
+                        <button type="submit" class="add-category-button" value="add">
+                          Save Changes
+                        </button>
+                    </form>
+                    </div>
+                </div>
+              </div>
+              <!-- end col -->
+              <div class="col-md-6">
+                <div class="breadcrumb-wrapper">
+                  <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="">Dashboard</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        Edit category
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+              <!-- end col -->
+            </div>
+            <!-- end row -->
+          </div>
+          
+        
+
+      </section>
+      <%-include('../layout/adminFooter')%>

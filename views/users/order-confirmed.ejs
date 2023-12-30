@@ -1,0 +1,123 @@
+<%- include('../layout/header.ejs' )%>
+<div class="main">
+    <div class="container">
+      <div class="row margin-bottom-40">
+        <div class="col-md-12 col-sm-12">
+          <div class="goods-page">
+            <div class="goods-data clearfix">
+
+                    <div class="address-form">
+                        <h1>Order <%= message %></h1>
+                        <p class="order-confirmation">Thank you for your order. Your order is <%= message %>.</p>
+                         <div class="order-summary">
+                            <p class="order-number">Order-ID : <%= orderData.orderID %></p>
+                            <p class="order-details">Order Date: <%= orderData.orderDate.toLocaleString('en-US', { 
+                                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                            </p>
+
+
+                            <p class="order-details">Shipping Address: <%= orderData.shippingAddress.house %></p>
+                            <p class="order-details">Payment Method: <%= orderData.paymentMethod %></p>
+                            <!-- Additional order details can be added here -->
+                        </div>
+                        <button class="cta-button">Track Your Order</button>
+                        <a href="/order-history"><button class="cta-button" type="submit"> ||   Order History</button></a>
+                        <p class="note">You will receive an email confirmation shortly. If you have any questions, please contact our customer support.</p>
+                    </div>
+                
+            </div>
+            <a href="/users/home"><button class="btn btn-default" type="submit">|| Continue shopping <i class="fa fa-shopping-cart"></i></button></a>
+
+            <form action="/order-cancel" method="post">
+                <input type="hidden" name="order_id" value="<%= orderData._id %>">
+                <button id="cancelButton" class="btn btn-primary" type="submit">Cancel Order </button>
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+             
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        background-color: #f5f5f5;
+    }
+
+    .address-form {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: rgb(227, 233, 243);
+        border: 1px solid #3d53c2;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        color: #333;
+    }
+
+    .order-confirmation {
+        font-size: 18px;
+        margin-top: 20px;
+    }
+
+    .order-summary {
+        margin-top: 30px;
+        border: 1px solid #ccc;
+        padding: 20px;
+    }
+
+    .order-number {
+        font-weight: bold;
+        color: #333;
+    }
+
+    .order-details {
+        font-size: 16px;
+        margin-top: 20px;
+    }
+
+    .cta-button {
+        margin-top: 30px;
+        background-color: #007bff;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        text-transform: uppercase;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .cta-button:hover {
+        background-color: #0056b3;
+    }
+
+    .note {
+        font-size: 14px;
+        color: #777;
+        margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+        .container {
+            padding: 10px;
+        }
+    }
+</style>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const orderStatus = '<%= orderData.status %>';
+      const cancelButton = document.getElementById('cancelButton');
+      if (orderStatus === 'Cancelled') {
+        cancelButton.style.display = 'none';
+      }
+    });
+  </script>
+ 
+<%- include('../layout/footer.ejs' )%>
+

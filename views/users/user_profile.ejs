@@ -1,0 +1,78 @@
+<%- include('../layout/header.ejs' )%>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .dashboard-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .user-details h2 {
+            margin: 0;
+        }
+
+        .address-details {
+            margin-bottom: 20px;
+        }
+
+        .order-history {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 5px 15px; /* Adjust the padding for a smaller or medium-sized button */
+            font-size: 13px; /* Adjust the font size for a smaller or medium-sized button */
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+
+    <div class="dashboard-container">
+        <div class="address-details">
+            <h3 class="header">Account Details</h3>
+            <p><%=userData.name %></p>
+            <p><a href=""><%=userData.email %></a></p>
+            <p><a href="">91 <%=userData.mobile %></a></p>
+            <a href="/users/edit-user?id=<%=userData._id%>" class="btn">Edit user info</a>
+            <a href="" class="btn">Change Password</a>
+        </div>
+        
+    <div class="address-details">
+        <h2>Address Details</h2>
+
+            <% address.forEach(address => { %>
+            <p>> Full Address: <%= address.house + ', ' + address.street + ', ' + address.city + ', ' + address.state + ', ' + address.pin %></p>
+            
+        <% }) %>
+        <a href="#" class="btn">Edit Address</a>
+    </div>
+    <hr>
+    <div class="order-history">
+            <h3 >Order History</h3>
+            <a href="/order-history" class="btn">View Order History</a>
+        </div>
+    </div>
+<%- include('../layout/footer.ejs' )%>

@@ -1,0 +1,135 @@
+<%- include('../layout/header.ejs') %>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 400px;">
+    <div class="text-center">
+        <h1 class="text-primary">Pay Now</h1>
+        <h2>Please proceed with the payment using RazorPay.</h2>
+        <button class="btn btn-success btn-lg"  id="rzp-button1">Pay Now</button>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    document.getElementById('rzp-button1').addEventListener('click', async () => {
+        try {
+            const id = '<%= orderData._id %>';
+            const total = '<%= orderData.totalAmount %>';
+
+            const response = await fetch('/razorpay', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id : id,
+                    amount : total
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            if (data.error) {
+            swal({
+                title: 'Payment Error',
+                text: data.error,
+                icon: 'error',
+                button: 'OK',
+            });
+            return; 
+            }
+            var options = {
+                "key": "rzp_test_bP8G2DlsmXoFob", // Enter the Key ID generated from the Dashboard
+                "amount": data.amount, 
+                "currency": "INR",
+                "name": " My Business",
+                "description": "Test Transaction",
+                "image": "https://example.com/your_logo",
+                "order_id": data.id, //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                "handler": async function (response){
+                    // alert(response.razorpay_payment_id);
+                    // alert(response.razorpay_order_id);
+                    // alert(response.razorpay_signature)
+
+                    const verificationResponse = await verifyPayment(response);
+
+                },
+                "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+                    "name": "Gaurav Kumar", //your customer's name
+                    "email": "gaurav.kumar@example.com", 
+                    "contact": "9000090000"  //Provide the customer's phone number for better conversion rates 
+                },
+                "notes": {
+                    "address": "Razorpay Corporate Office"
+                },
+                "theme": {
+                    "color": "#3399cc"
+                }
+            };
+
+            async function verifyPayment(response) {
+        
+            const verificationResponse = await fetch('/verify-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    paymentId: response.razorpay_payment_id,
+                    orderId: response.razorpay_order_id,
+                    signature: response.razorpay_signature,
+                    id: id
+                }),
+            });
+            const jsonResult = await verificationResponse.json();
+
+            if (!verificationResponse.ok) {
+                throw new Error(`Payment verification failed! Status: ${verificationResponse.status}`);
+            }
+
+            if (jsonResult.success) {
+                swal({
+                    title: 'Payment Successful',
+                    text: 'Your payment verification successful!',
+                    icon: 'success',
+                    button: 'OK',
+                }).then(() => {
+                    window.location.href = `/success-payment?id=${id}`;
+                });
+            } else {
+                swal({
+                    title: 'Payment Failed',
+                    text: 'Your payment could not be verified. Please try again.',
+                    icon: 'error',
+                    button: 'OK',
+                });
+            }
+
+            return verificationResponse.json();
+            }
+            
+            var rzp1 = new Razorpay(options);
+            rzp1.on('payment.failed', function (response){
+                    alert(response.error.code);
+                    alert(response.error.description);
+                    alert(response.error.source);
+                    alert(response.error.step);
+                    alert(response.error.reason);
+                    alert(response.error.metadata.order_id);
+                    alert(response.error.metadata.payment_id);
+            });
+                rzp1.open();
+        } catch (error) {
+            console.error('Error connecting to Razorpay endpoint:', error);
+        }
+    });
+
+
+
+</script>
+<%- include('../layout/footer.ejs') %>

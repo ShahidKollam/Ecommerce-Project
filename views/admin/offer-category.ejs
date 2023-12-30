@@ -1,0 +1,166 @@
+<%- include('../layout/adminHeader') %>
+
+<section class="section">
+  <div class="container-fluid">
+    <div class="title-wrapper pt-10">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="title">
+            <h3>Category Offer Management</h3>
+            
+            <h5><%=  %></h5>
+          </div>
+        </div>
+        <!-- end col -->
+        <div class="col-md-6">
+          <div class="breadcrumb-wrapper">
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                  <a href="">Dashboard</a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">
+                  Categories
+                </li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+        <!-- end col -->
+      </div>
+      <!-- end row -->
+    </div>
+
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card-style mb-30">
+
+          <div class="table-wrapper table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>
+                    <h4>#</h4>
+                  </th>
+                  <th>
+                    <h4>Category</h4>
+                  </th>
+                  <th>
+                    <h4>Offer(%)</h4>
+                  </th>
+                  <th>
+                    <h4>Action</h4>
+                  </th>
+                </tr>
+                <!-- end table row-->
+              </thead>
+              <tbody>
+                <% if(category.length > 0){ 
+                    for(let i=0; i < category.length; i++){ 
+                %>
+                <tr>
+                  <td class="min-width">
+                    <h5><%= i+1 %></h5>
+                  </td>
+                  <td class="min-width">
+                    <h5><%= category[i].name %></h5>
+                  </td>
+                  <td class="min-width">
+                    <h5><%= category[i].CatOffer %>%</h5>
+                  </td>
+                  <td>
+
+                    <div class="input-group">
+                      <form action="/category-offer" method="post" class="row">
+                        <div class="col-8">
+                          <input type="hidden" name="id" value="<%= category[i]._id %>">
+                          <input type="number" class="form-control" id="offer" name="offer" placeholder="Enter Offer [%]" required>
+                        </div>
+                        <div class="col-4">
+                          <button type="submit" class="btn btn-info btn-block" value="add">UPDATE</button>
+                        </div>
+                      </form>
+                    </div>
+                    
+                  </td>
+                </tr>
+                <% } %>
+                <% } else { %>
+                <tr>
+                  <td colspan="3">Category not found</td>
+                </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script>
+
+  function confirmDelete(index) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Deleting a category will also delete all associated products!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!',
+      customClass: {
+        popup: 'small-swal',
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById(`deleteForm${index}`).submit();
+      }
+    });
+  }
+
+  function confirmRestore(index) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Restoring a category will also restore all associated products!',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, restore it!',
+      customClass: {
+        popup: 'small-swal',
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.getElementById(`deleteForm${index}`).submit();
+      }
+    });
+  }
+
+  const message = "<%= message %>";
+
+  if (message) { 
+    Toastify({
+      text: message,
+      duration: 5000,
+      gravity: "top",
+      position: "center",
+      backgroundColor: "linear-gradient(to right, #e53935, #d32f2f)",
+      stopOnFocus: true, // Stop timeout when the toast is hovered
+      className: "success-toast", // Add a custom class for styling
+    }).showToast();
+  };
+
+</script>
+<style>
+  .small-swal {
+    width: 900px;
+  }
+</style>
+<%- include('../layout/adminFooter') %>

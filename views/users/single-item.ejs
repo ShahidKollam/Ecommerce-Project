@@ -1,0 +1,113 @@
+<%- include('../layout/header.ejs') %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">
+            <img src="<%= imageUrls %>" alt="Product" class="img-fluid product-image" id="myimage" onclick="openModal()">
+        </div>
+        <div class="col-lg-4 product-details">
+            <h2>Product Name: <%= product.name %></h2>
+            <p class="text-muted">Category: <%= product.category.name %></p>
+            <p><%= product.description %></p>
+            <span class="product-price">₹<%= product.price %></span>
+            <p>Only <%= product.quantity %> stocks available</p>
+            <button class="btn btn-primary">Add to Cart</button>
+        </div>
+    </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="myModal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <img class="modal-content" id="zoomedImg">
+</div>
+<style>
+    .container {
+        padding: 2px;
+    }
+
+    .product-image {
+
+        max-width: 60%;
+        height: 70;
+        border: 2px solid #ccc; /* Add a border */
+        display: block;
+        margin: 25px 0px 80px 85px ; /* Center the image horizontally */
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .product-image:hover {
+        transform: scale(1.2); /* Adjust the zoom level as needed */
+        border-color: #4f4f50; /* Change border color on hover */
+    }
+
+    .product-details {
+        padding: 20px;
+        border-radius: 8px; /* Add border radius for rounded corners */
+    }
+
+    .product-details h2 {
+        color: #333; /* Change heading color */
+    }
+
+    .product-details p {
+        color: #666; /* Change paragraph text color */
+    }
+
+    .product-details h3 {
+        color: #007bff; /* Change price color */
+    }
+
+    .btn-primary {
+        background-color: #007bff; /* Change button background color */
+        color: #fff; /* Change button text color */
+    }
+
+    /* The Modal (background) */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        padding-top: 50px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    /* Modal Content (image) */
+    .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 40%;
+        max-height: 80vh; /* Use viewport height for the maximum height */
+    }
+
+    /* Close button */
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function openModal() {
+        document.getElementById('myModal').style.display = 'block';
+        document.getElementById('zoomedImg').src = '<%= imageUrls %>';
+    }
+
+    function closeModal() {
+        document.getElementById('myModal').style.display = 'none';
+    }
+</script>
+
+<%- include('../layout/footer.ejs') %>

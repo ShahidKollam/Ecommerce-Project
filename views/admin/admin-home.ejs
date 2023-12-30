@@ -1,0 +1,276 @@
+<%- include('../layout/adminHeader.ejs') %>
+
+
+          <section class="section">
+            <div class="container-fluid">
+              <div class="title-wrapper pt-30">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <div class="title">
+                      <h2>Ecommerce Dashboard</h2>
+                    </div>
+                  </div>
+                  <!-- end col -->
+                  <div class="col-md-6">
+                    <div class="breadcrumb-wrapper">
+                      <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                          <li class="breadcrumb-item">
+                            <a href="">Dashboard</a>
+                          </li>
+                          <li class="breadcrumb-item active" aria-current="page">
+                            Eommerce
+                          </li>
+                        </ol>
+                      </nav>
+                    </div>
+                  </div>
+                  <!-- end col -->
+                </div>
+                <!-- end row -->
+              </div>
+
+
+              <div class="row">
+                <div class="col-xl-3 ">
+                  <div class="icon-card mb-30">
+                    <div class="icon purple">
+                      <i class="lni lni-cart-full"></i>
+                    </div>
+                    <div class="content">
+                      <h6 class="mb-10">Orders</h6>
+                      <h3 class="text-bold mb-10"><%= totalOrder %></h3>
+                      <p class="text-sm text-success">
+
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xl-3">
+                  <div class="icon-card mb-30">
+                    <div class="icon success">
+                      <i class="lni lni-dollar"></i>
+                    </div>
+                    <div class="content">
+                      <h6 class="mb-10">Total Revenue</h6>
+                      <h3 class="text-bold mb-10">₹<%= totalRevenue %></h3>
+                      <p class="text-sm text-success">
+
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xl-3 ">
+                  <div class="icon-card mb-30">
+                    <div class="icon primary">
+                      <i class="lni lni-credit-cards"></i>
+                    </div>
+                    <div class="content">
+                      <h6 class="mb-10">Total Products</h6>
+                      <h3 class="text-bold mb-10"><%= totalProduct %></h3>
+                      <p class="text-sm text-danger">
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-xl-3 ">
+                  <div class="icon-card mb-30">
+                    <div class="icon orange">
+                      <i class="lni lni-user"></i>
+                    </div>
+                    <div class="content">
+                      <h6 class="mb-10">Users</h6>
+                      <h3 class="text-bold mb-10"><%= totalUsers %></h3>
+                      <p class="text-sm text-danger">
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="card mb-30">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex flex-column">
+                          <h5 class="text-uppercase mb-2 text-bold">Sales Overview</h5>
+                        </div>
+                        <div class="col-lg-4">
+                          <div class="form-group">
+                            <label for="timeFilter" class="text-muted small">Select Time Range</label>
+                            <select class="form-control" id="timeFilter" onchange="updateChart()">
+                              <option value="monthly">Monthly</option>
+                              <option value="weekly">Weekly</option>
+                              <option value="yearly">Yearly</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+              
+                      <!-- Chart Container -->
+                      <div class="mt-4">
+                        <input type="hidden" id="monthlySalesData" value='<%= JSON.stringify(monthlySalesData) %>'>
+                        <canvas id="salesChart" height="300"></canvas>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-lg-6">
+                  <div class="icon-card mb-30">
+                    <div class="card-body  mt-2 d-flex flex-column">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <div class="left">
+                          <h6 class="text-bold mb-10">Sales</h6>
+                        </div>
+                        <div class="right col-lg-4">
+                          <div class="select-style-1">
+                            <div class="select-position select-sm">
+                              <select class="light-bg" id="timeFilter" onchange="updateChart()">
+                                <option value="monthly">Monthly</option>
+                                <option value="weekly">weekly</option>
+                                <option value="yearly">Yearly</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+              
+                      <!-- Move canvas outside of the d-flex container to position it below -->
+                      <div class="d-flex justify-content-">
+                        <input type="hidden" id="monthlySalesData" value='<%= JSON.stringify(monthlySalesData) %>'>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+             </div>
+             </section>
+<script>
+              document.addEventListener('DOMContentLoaded', function () {
+                const monthlySalesDataInput = document.getElementById('monthlySalesData');
+                const monthlySalesData = JSON.parse(monthlySalesDataInput.value);
+                const months = monthlySalesData.map(item => item.month);
+                const salesData = monthlySalesData.map(item => item.totalSales);
+            
+                const monthNames = months.map(month => {
+                  const date = new Date(month);
+                  return date.toLocaleString('default', { month: 'long' });
+                });
+            
+                const ctx = document.getElementById('salesChart').getContext('2d');
+
+                // Initialize the salesChart inside the DOMContentLoaded event
+                const salesChart = new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: monthNames,
+                    datasets: [{
+                      label: 'Sales',
+                      data: salesData,
+                      backgroundColor: 'rgba(75, 192, 192, 0.8)',
+                      borderColor: 'rgba(75, 192, 192, 1)',
+                      borderWidth: 3,
+                    }]
+                  },
+                  options: {
+                    responsive: false,
+                    scales: {
+                      x: {
+                        beginAtZero: true,
+                      },
+                      y: {
+                        beginAtZero: true,
+                      }
+                    }
+                  }
+                });
+            
+                // Add event listener for dropdown menu change
+                const timeFilterSelect = document.getElementById('timeFilter');
+                timeFilterSelect.addEventListener('change', updateChart);
+            
+                // Store salesChart as a property of the window object
+                window.salesChart = salesChart;
+            
+                // Initial call to updateChart function
+                updateChart();
+              });
+
+            async function updateChart() {
+              try {
+                const timeFilterSelect = document.getElementById('timeFilter');
+                const selectedFilter = timeFilterSelect.value;
+
+                const newData = await fetchDataBasedOnFilter(selectedFilter);
+
+                if (selectedFilter === 'monthly') {
+
+                  window.salesChart.data.labels = newData.monthNames.map(month => new Date(month).toLocaleString('default', { month: 'long', year: 'numeric' }));
+                  window.salesChart.data.datasets[0].label = "Monthly Sales";
+                  window.salesChart.options.scales.x.data = newData.monthNames;
+
+                } else if (selectedFilter === 'weekly') {
+
+                  window.salesChart.data.labels = newData.weeks.map(week => {
+                    const [year, weekNumber] = week.split('-');
+                    const startDate = getStartDateOfWeek(year, weekNumber);
+                    return `${startDate.toLocaleString('default', { month: 'short', day: 'numeric' })} `;
+                  });
+                  window.salesChart.data.datasets[0].label = "Weekly Sales";
+                  window.salesChart.options.scales.x.data = newData.weeks;
+
+                } else if (selectedFilter === 'yearly') {
+
+                  window.salesChart.data.labels = newData.years.map(year => new Date(`${year}-01-01`).toLocaleString('default', { year: 'numeric' }));
+                  window.salesChart.data.datasets[0].label = "Yearly Sales";
+                  window.salesChart.options.scales.x.data = newData.years;
+
+                }
+
+                window.salesChart.data.datasets[0].data = newData.salesData;
+                window.salesChart.update();
+                
+              } catch (error) {
+                console.error('Error updating chart:', error);
+              }
+            }
+
+              async function fetchDataBasedOnFilter(filter) {
+              try {
+                const response = await fetch(`/admin/chart?filter=${filter}`);
+                if (!response.ok) {
+                  throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const data = await response.json();
+                console.log(data);
+                return {
+                  monthNames: data.monthNames,
+                  weeks: data.weeks,
+                  years: data.years,
+                  salesData: data.salesData,
+                };
+              } catch (error) {
+                console.error('Error fetching data:', error);
+                return {
+                  monthNames: [],
+                  weeks: [],
+                  years: [],
+                  salesData: [],
+                };
+              }
+            }
+            function getStartDateOfWeek(year, weekNumber) {
+              const date = new Date(year, 0, 1); // January 1st of the year
+              const daysToAdd = (weekNumber - 1) * 7;
+              date.setDate(date.getDate() + daysToAdd - date.getDay()); // Set to the first day of the week
+              return date;
+            }
+
+</script>
+            
+
+<%- include('../layout/adminFooter.ejs') %>

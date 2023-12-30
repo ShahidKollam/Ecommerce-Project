@@ -1,0 +1,182 @@
+<%- include('../layout/adminHeader.ejs') %>
+
+<section class="container row justify-content-center">
+    <h2 class="row justify-content-center">Add Coupon</h2>
+
+    <form id="couponForm" class="reg-form col-lg-6 my-4">
+
+        <div class="mb-3">
+            <label for="couponCode" class="form-label">Coupon Code:</label>
+            <input type="text" class="form-control" id="couponCode" name="couponCode" required  maxlength="5">
+        </div>
+
+        <div class="mb-3">
+            <label for="discountAmount" class="form-label">Discount (%):</label>
+            <div class="input-group">
+                <input type="number" class="form-control" id="discountAmount" name="discountAmount" required>
+                <span class="input-group-text">%</span>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="minAmount" class="form-label">Order Amount:</label>
+            <div class="input-group">
+                <input type="number" class="form-control" id="minAmount" name="minAmount" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="maxUses" class="form-label">Number of Coupon:</label>
+            <input type="number" class="form-control" id="maxUses" name="maxUses" required>
+        </div>
+        <div class="mb-3">
+            <label for="startDate" class="form-label">Start Date:</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" required>
+        </div>
+        <div class="mb-3">
+            <label for="expirationDate" class="form-label">Expiry Date:</label>
+            <input type="date" class="form-control" id="expirationDate" name="expirationDate" required>
+        </div>
+        <div id="errorContainer" class="text-danger"><span></span></div>
+
+        <button type="button" class="btn btn-success" onclick="submitForm()">Add Coupon</button>
+    </form>
+</section>
+<!-- Include SweetAlert CSS and JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    async function submitForm() {
+        // Get form values
+        var couponCode = document.getElementById('couponCode').value.toUpperCase();
+        var discountAmount = document.getElementById('discountAmount').value;
+        var minPurchaseAmount = document.getElementById("minAmount").value;
+        var expirationDate = document.getElementById('expirationDate').value;
+        var startDate = document.getElementById('startDate').value;
+        var maxUses = document.getElementById('maxUses').value;
+
+        // Basic validation
+        var errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = ''; // Clear previous error messages
+
+        if (couponCode.trim() === '') {
+            displayError('Coupon Code is required');
+            return;
+        }
+
+        if (couponCode.length != 5) {
+        displayError('Coupon Code must be 5 characters long');
+        return;
+        }
+
+        if (discountAmount.trim() === '') {
+            displayError('Discount Amount is required');
+            return;
+        }   
+
+        if (maxUses.trim() === '') {
+            displayError('Number of Coupon is required');
+            return;
+        }
+            
+        if (startDate.trim() === '') {
+            displayError('Start Date is required');
+            return;
+        }
+
+        if (expirationDate.trim() === '') {
+            displayError('Expiration Date is required');
+            return;
+        }
+        var currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        if (new Date(startDate) < currentDate) {
+            displayError('Start Date cannot be before the current date');
+            return;
+        }
+
+        if (new Date(expirationDate) < currentDate) {
+            displayError('Expiration Date cannot be before the current date');
+            return;
+        }
+
+        if (new Date(startDate) > new Date(expirationDate)) {
+            displayError('Start Date should be before Expiration Date');
+            return;
+        }
+
+        var formData = {
+            couponCode: couponCode,
+            discountAmount: discountAmount,
+            maxUses: maxUses,
+            expirationDate: expirationDate,
+            startDate: startDate,
+            minPurchaseAmount: minPurchaseAmount,
+        };
+
+        // Continue with form submission
+        const response = await fetch('/add-coupan', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        try {
+            if (!response.ok) {
+                const errorMessage = await response.text();
+                Swal.fire({
+                icon: 'error',
+                title: `Already Existing Code`, 
+                showConfirmButton: false,
+                timer: 4500
+            });
+            } else {
+                await Swal.fire({
+                icon: 'success',
+                title: `Coupon Added Successfully!`, 
+                showConfirmButton: false,
+                timer: 4500
+            });
+            console.log('Form submitted successfully');
+            window.location.reload()
+
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+        
+    function displayError(message) {
+        var errorContainer = document.getElementById('errorContainer');
+        var errorMessage = document.createElement('p');
+        errorMessage.textContent = message;
+        errorContainer.appendChild(errorMessage);
+    }
+    }
+</script>
+
+<style>
+    body {
+        background-color: #f8f9fa; /* Set your desired background color */
+    }
+
+    .container {
+        margin-top: 20px; /* Adjust the margin as needed */
+    }
+
+    .reg-form {
+        background-color: #eeeded; /* Set the form background color */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    /* Add more styles as needed */
+</style>
+
+<%- include('../layout/adminFooter.ejs') %>

@@ -1,0 +1,60 @@
+<%- include('../layout/adminHeader.ejs') %>
+
+<section class="container row justify-content-center">
+    <h2 class="row justify-content-center">Edit Banner</h2>
+
+    <form id="bannerForm" action="/banner/edit" method="post" class="reg-form col-lg-6 my-4" enctype="multipart/form-data">
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text" class="form-control" id="title" name="title" value="<%= banner.title %>" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea class="form-control" id="description" name="description" rows="2" value="<%= banner.description %>"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="image" class="form-label">Image :</label>
+            <input type="file" class="form-control" accept="image/*" id="image" name="banner-image" value="<%= banner.image %>">
+        </div>
+
+        <div class="mb-3">
+            <label for="url" class="form-label">URL:</label>
+            <input type="text" class="form-control" id="url" name="url" value="<%= banner.url %>">
+        </div>
+        <input type="hidden" name="id" value="<%= banner._id %>">
+        <div id="errorContainer" class="text-danger"><span></span></div>
+
+        <button type="submit" class="btn btn-success" >Update</button>
+    </form>
+</section>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    body {
+        background-color: #f8f9fa; /* Set your desired background color */
+    }
+
+    .container {
+        margin-top: 20px; /* Adjust the margin as needed */
+    }
+
+    .reg-form {
+        background-color: #eeeded; /* Set the form background color */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    /* Add more styles as needed */
+</style>
+
+<%- include('../layout/adminFooter.ejs') %>

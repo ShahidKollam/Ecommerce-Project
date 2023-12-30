@@ -1,0 +1,307 @@
+<%- include('../layout/header.ejs') %>
+
+<style>
+    /* Custom CSS for styling */
+    body {
+        background-color: #f5f5f5;
+        font-family: 'Roboto', sans-serif;
+    }
+    .card {
+        margin-bottom: 20px;
+        border: 1px solid #dee0e2;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card-header {
+        background-color: #007BFF;
+        color: #fff;
+        border-bottom: 2px solid #0056b3;
+        border-radius: 8px 8px 0 0;
+    }
+    .card-title {
+        font-size: 24px;
+    }
+    .list-group-item {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+    }
+    .media {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    .card-body {
+        padding: 15px;
+    }
+    .media img {
+        max-width: 100px;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        margin-right: 15px;
+    }
+</style>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="mb-0">Ordered Items</h1>
+                </div>
+
+            <ul class="list-group list-group-flush">
+                <% if (order) { %>
+                    <% for (let j = 0; j < order.orderItems.length; j++) { %>
+                        <li class="list-group-item">
+                            <div class="media">
+                                <div class="media-left">
+                                    <img src="<%= imageUrls[j][0] %>" width="100px" height="100px" class="img-fluid rounded" alt="Product Image">
+                                </div>
+                                <div class="media-body min-width">
+                                    <h2 class="mt-0">Product Name: <%= order.orderItems[j].product.name %></h2>
+                                    <h2>Quantity: <%= order.orderItems[j].quantity %></h2>
+                                    <h2>Category: <%= order.orderItems[j].product.category.name %></h2>
+                                    <h2>Price per unit: <%= order.orderItems[j].pricePerOrdrItem %></h2>
+                                </div>
+                            </div>
+                        </li>
+                    <% } %>
+                <%  } else { %>
+                    <li class="list-group-item">
+                        Product not found
+                    </li>
+                <% } %>
+            </ul>
+
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="mb-0">Order Information</h1>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title">Order ID: <%=order.orderID %></h5>
+                    <h4 class="card-text">Order Date: <%= (new Date(order.orderDate)).toLocaleDateString('en-GB') %></h4>
+                    <h4 class="card-text">Payment Method: <%=order.paymentMethod %></h4>
+                    <h4 class="card-text">Order Status: <%=order.status %></h4>
+                    <h4 class="card-text">Shipping Address: <%= order.shippingAddress.house %></h4>
+                    <h5 class="card-text">PIN: <%= order.shippingAddress.pin %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state%>.</h5>
+                    <button class="btn btn-primary form-control" onclick="downloadInvoice('<%=order._id %>')">Get Order Invoice</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="mb-0">Bill</h1>
+                </div>
+                <div class="card-body">
+                    <% if (order) { %>
+                    <div class="media-body">
+                        <h3 class="card-text">Subtotal: <%= order.totalAmount %></h3>
+                        <h3 class="card-text">Shipping: 10.00</h3><br>
+                        <h2 class="card-text" style="color: red;">Total Amount: <%= order.totalAmount %></h2>
+                    </div>
+                    <div class="media-right">
+                        <form action="" method="">
+                            <input type="hidden" name="order_id" value="<%= order._id %>">
+                            <input type="hidden" name="paymentMethod" value="<%= order.paymentMethod %>">
+                            <button id="cancelButton" class="btn btn-danger btn" type="submit" disabled>Cancel  </button><br><br>
+                            <button id="returnButton" class="btn btn-primary btn" type="submit" disabled>RETURN </button>
+                        </form>
+                        <br>
+
+                    <% } else { %>
+                        <p>Product not found, unable to calculate the bill.</p>
+                    <% } %>
+                </div>
+                </div>		
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function downloadInvoice(order_id) {
+        try {
+            const response = await fetch(`/download/invoice/${order_id}`,{
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const blob = await response.blob();
+
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'invoice.pdf';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error downloading invoice:', error);
+        }
+        }
+
+
+    document.addEventListener('DOMContentLoaded', function () { 
+        const orderStatus = '<%= order.status %>';
+        const paymentMethod = '<%= order.paymentMethod %>';
+        const orderId = "<%= order._id %>";
+        const cancelButton = document.getElementById('cancelButton');
+        const returnButton = document.getElementById('returnButton')
+
+        if ( orderStatus == 'Delivered' ) {
+            returnButton.disabled = false;
+        }
+
+        if (
+            orderStatus !== 'Cancelled' &&
+            orderStatus !== 'Delivered' &&
+            orderStatus !== 'Returned' 
+        ) {
+            cancelButton.disabled = false;
+        }
+
+        cancelButton.addEventListener('click', async function (event) {
+            event.preventDefault();
+
+            Swal.fire({
+                title: 'Confirm Order Cancellation',
+                text: 'Are you sure you want to cancel this order?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, cancel it!',
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch('/order-cancel', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                order_id: '<%= order._id %>',
+                                status: '<%= order.status %>',
+                                paymentMethod: '<%= order.paymentMethod %>',
+                            }),
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            if (paymentMethod === 'Wallet' || paymentMethod === 'RazorPay' && orderStatus !== 'Pending') {
+                                Swal.fire({
+                                    title: 'Successful!',
+                                    text: 'Your order has been cancelled. Refund amount credited to your wallet.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'OK',
+                                }).then(() => {
+                                    window.location.href = `/order-details?id=${'<%= order._id %>'}`;
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Order Cancelled!',
+                                    text: 'Your order has been cancelled successfully.',
+                                    icon: 'success',
+                                    confirmButtonColor: '#3085d6',
+                                    confirmButtonText: 'OK',
+                                }).then(() => {
+                                    window.location.href = `/order-details?id=${'<%= order._id %>'}`;
+                                });
+                            }
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: 'Failed to cancel the order. Please try again.',
+                                icon: 'error',
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error in order cancellation:', error.message);
+                    }
+                }
+            });
+        });
+
+            
+        returnButton.addEventListener('click', async function (event) {
+        event.preventDefault();
+
+        Swal.fire({
+            title: 'Confirm Return',
+            text: 'Are you sure you want to return this product?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes!',
+        }).then(async(result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('/order-return', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            order_id: '<%= order._id %>',
+                            status: '<%= order.status %>',
+                            paymentMethod: '<%= order.paymentMethod %>',
+                        }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (paymentMethod === 'Wallet' || paymentMethod === 'RazorPay' && orderStatus !== 'Pending') {
+                            Swal.fire({
+                                title: 'Successful!',
+                                text: 'Return Request Accepted. Refund amount credited to your wallet.',
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK',
+                            }).then(() => {
+                                window.location.href = `/order-details?id=${'<%= order._id %>'}`;
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Successful!',
+                                text: 'Request Accepted for Product Return.',
+                                icon: 'success',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'OK',
+                            }).then(() => {
+                                window.location.href = `/order-details?id=${'<%= order._id %>'}`;
+                            });
+                        }
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to request for Product Return. Please try again.',
+                            icon: 'error',
+                        });
+                    }
+                } catch (error) {
+                    console.error('Error in order cancellation:', error.message);
+                }
+            }
+        });
+    });
+
+});
+    
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<%- include('../layout/footer.ejs') %>
