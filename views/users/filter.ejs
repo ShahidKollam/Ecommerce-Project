@@ -69,7 +69,7 @@
                     <p class="text-primary">[<%=products[i].offer%>%] Offer Price: <strong>₹<%= discountedPrice %></strong> </p>
                 <% } else { %>
                     <span class="product-price">₹<%= products[i].price %></span>
-                    <p>No Offer Available</p>
+                    <span><p style="color: #e9e7e7;">.</p></span>
                 <% } %> 
                 <form action="/add-to-cart" method="POST">
                     <input type="hidden" name="product_id" value="<%= products[i]._id %>">

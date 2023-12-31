@@ -8,7 +8,9 @@ const loadProducts = async(req,res)=>{
         const adminName = req.session.adminName
         const adminEmail = req.session.adminEmail
         const {message} = req.query
-        const productData = await Product.find().populate("category")
+        const productData = await Product.find()
+        .populate("category")
+        .sort({_id: -1})
 
         const imageUrls = [] 
         if (productData) {
@@ -19,7 +21,7 @@ const loadProducts = async(req,res)=>{
             imageUrls.push(images)
           }   
         }
-        console.log(imageUrls);
+
         res.render('products-list',{
             adminEmail,
             adminName,
@@ -56,7 +58,7 @@ const saveProduct = async(req,res)=>{
         const productData = await Product.findOne({ description: description });
         if(productData){
             console.log("error");
-            res.json("Product already exist")
+            res.json({error:"Product already exist"})
         }else{ 
         const product = new Product({
             name : req.body.product_name,
@@ -103,11 +105,13 @@ const editProducts = async(req,res)=>{
                 console.error(error);
                 res.status(500).send("Internal Server Error");
         }
-    }
+}
 
 const updateProduct = async (req, res) => {  
     try {
         const id = req.query.id;
+        console.log("body",req.body.deletedImages);
+        console.log(req.files);
         let updatedData = {};
 
         const existingImages = await Product.findById(id).select('image');
@@ -125,7 +129,7 @@ const updateProduct = async (req, res) => {
             return !deletedImages.includes(filename);
         }); 
         }
-        console.log(updatedData);
+        //console.log(updatedData);
         updatedData.name = req.body.product_name;
         updatedData.price = req.body.product_price;
         updatedData.quantity = req.body.product_stock;
@@ -134,8 +138,8 @@ const updateProduct = async (req, res) => {
         updatedData.is_blocked = false;
 
         const productData = await Product.findByIdAndUpdate(id, updatedData, { new: true });
-
-        res.redirect(`/admin/products?message=Product Edited`);
+        res.json({success: true})
+        //res.redirect(`/admin/products?message=Product Edited`);
 
         } catch (error) {
             console.error(error.message);

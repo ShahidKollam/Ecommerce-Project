@@ -1,5 +1,12 @@
 <%- include('../layout/adminHeader.ejs') %>
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
 <style>
   .form-container {
@@ -79,8 +86,6 @@
     margin-left: 5px;
   }
   
-</style>
-<style>
   .form-group.product-image {
     margin-bottom: 20px;
   }
@@ -120,115 +125,112 @@
   }
 </style>
 
+<div class="d-flex justify-content-center" style="min-height: 100vh;">
+  <div style="min-height: 100vh;">
 
-<section class="section">
-  <div class="container-fluid">
-    <div class="title-wrapper pt-30">
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <div class="title">
-            <h2>Edit Product</h2>
-          </div>
+    <div class="container col-lg-6">
+      <div class="row">
+        <div class="d-flex justify-content-center p-5">
+          <h1 class="fw-bold"><u>EDIT PRODUCT</u></h1>
         </div>
-        <div class="col-md-6">
-          <div class="breadcrumb-wrapper">
-            <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                  <a href="">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                  Edit Product
-                </li>
-              </ol>
-            </nav>
+        <form method="" id="catForm" class="reg-form" enctype="multipart/form-data" action="">
+
+          <div class="form-group">
+            <label for="productName">Product Name</label>
+            <input name="product_name" type="text" class="form-control border border-dark" id="productName"
+              placeholder="Product Name" onblur="validateCatName()" value="<%= product.name %>" required>
+            <span id="catNameValidationMessage" class="text-danger"></span>
           </div>
-        </div>
+
+          <div class="form-group">
+            <label for="productPrice">Product Price</label>
+            <input name="product_price" type="number" class="form-control border border-dark" id="productPrice"
+              placeholder="Product Price" onblur="validatePrice()" value="<%= product.price %>" required>
+            <span id="productPriceValidationMessage" class="text-danger"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="productStock">Product Stock</label>
+            <input name="product_stock" type="number" class="form-control border border-dark" id="productStock"
+              placeholder="Product Stock" onblur="validateStock()" value="<%= product.quantity %>" required>
+            <span id="productStockValidationMessage" class="text-danger"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="productDescription">Description</label>
+            <textarea name="product_description" onblur="validateDescription()"
+              class="form-control border border-dark" id="productDescription" placeholder="Product Description"
+              rows="3" required><%= product.description %></textarea>
+            <span id="descriptionValidationMessage" class="text-danger"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="productCategory">Category</label>
+            <select id="productCategory" class="form-control border border-dark" name="product_category" onblur="validateCategory()" required>
+              <option value="" disabled>Select a category</option>
+              <% category.forEach(function(category) { %>
+              <option value="<%= category._id %>" <%= category._id === product.category._id ? 'selected' : '' %>><%= category.name %></option>
+              <% }); %>
+            </select>
+            <span id="categoryValidationMessage" class="text-danger"></span>
+          </div>
+
+          <div class="form-group product-image">
+          <label for="image">Current Image:</label>
+          <% if (imageUrls && imageUrls.length > 0) { %>
+          <% for (let i = 0; i < imageUrls.length; i++) { %>
+            <% const uniqueImageUrls = Array.from(new Set(imageUrls[i])); %>
+            <% for (let j = 0; j < uniqueImageUrls.length; j++) { %>
+            <div class="image-preview" data-image-url="<%= uniqueImageUrls[j] %>">
+              <img src="<%= uniqueImageUrls[j] %>" width="<%= j === 0 ? '113px' : '100px' %>" height="100px" alt="Product Image">
+              <span class="delete-icon delete-image">&#10006;</span>
+            </div>
+            <% } %>
+          <% } %>
+          <% } %>
+
+          <input type="file" name="product_image" class="form-control" id="product_images" accept="image/*" multiple>
+          <br><br>
+          <span id="imageValidationMessage" class="text-danger"></span>
+          </div>
+
+
+          <div id="loadingSpinner" class="spinner-border text-primary" style="display: none;" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+
+          <div class="form-group py-3">
+            <input type="button" class="btn btn-primary form-control border border-dark" onclick="submitForm()"
+              id="exampleFormControlInput1" value="Update">
+          </div>
+
+        </form>
       </div>
     </div>
   </div>
-
-  <div class="card-style col-5 ml-15">
-    <h1>Edit Product</h1><br>
-
-    <form action="/admin/edit-product?id=<%= product._id %>" method="post" class="reg-form" enctype="multipart/form-data">
-      <input type="hidden" name="id" value="<%= product._id %>">
-      <div class="form-group product-name">
-        <label for="name">Product Name</label>
-        <input type="text" id="name" name="product_name" placeholder="Enter" value="<%=product.name %>" >
-      </div>
-
-      <div class="form-group category">
-        <label for="category">Category</label>
-        <select id="category" name="product_category" required>
-          <option value="<%=product.category._id %>"><%=product.category.name %></option>
-          <% category.forEach(function(category) { %>
-          <option value="<%= category._id %>"><%= category.name %></option>
-          <% }); %>
-        </select>
-      </div>
-
-      <div class="form-group price">
-        <label for="price">Price</label>
-        <input type="text" id="price" name="product_price" placeholder="Enter product price" value="<%=product.price %>" >
-      </div>
-
-      <div class="form-group stock">
-        <label for="stock">Stock</label>
-        <input type="text" id="stock" name="product_stock" placeholder="Enter stock limit"  value="<%=product.quantity %>">
-      </div>
-
-      <div class="form-group description">
-        <label for="description">Description</label>
-        <textarea id="description" name="product_description" style="height: 150px;" placeholder="Enter  description" ><%=product.description %></textarea>
-      </div>
-
-
-  <div class="form-group product-image">
-    <label for="image">Current Image:</label>
-    <% if (imageUrls && imageUrls.length > 0) { %>
-      <% for (let i = 0; i < imageUrls.length; i++) { %>
-        <% const uniqueImageUrls = Array.from(new Set(imageUrls[i])); %>
-        <% for (let j = 0; j < uniqueImageUrls.length; j++) { %>
-          <div class="image-preview" data-image-url="<%= uniqueImageUrls[j] %>">
-            <img src="<%= uniqueImageUrls[j] %>" width="<%= j === 0 ? '113px' : '100px' %>" height="100px" alt="Product Image">
-            <span class="delete-icon delete-image">&#10006;</span>
-          </div>
-        <% } %>
-      <% } %>
-    <% } %>
-       
-  <input type="file" name="product_image" class="form-control" id="product_image" accept="image/*" multiple>
-  <br><br>
-
-      <div class="form-group submit-btn">
-        <input type="submit" value="Update">
-      </div>
-    </form>   
-  </div>
-  
-</section>
+</div>
 
 <script>
-  $(document).ready(function() {
+
     var deletedImages = [];
-  
+
     $('.delete-image').on('click', function(event) {
       event.preventDefault();
-  
+
       var imageContainer = $(this).closest('.image-preview');
-  
+
       var imageUrl = imageContainer.data('image-url');
-  
+
       var filename = imageUrl.split('/').pop();
       if (!deletedImages.includes(filename)) {
         imageContainer.remove();
         deletedImages.push(filename);
       }
     });
+
     $('form.reg-form').submit(function() {
       var uniqueDeletedImages = new Set(deletedImages);
-  
+
       var uniqueDeletedImagesArray = Array.from(uniqueDeletedImages);
       var hiddenInput = $('<input>').attr({
         type: 'hidden',
@@ -236,11 +238,183 @@
         name: 'deletedImages',
         value: JSON.stringify(uniqueDeletedImagesArray)
       });
-  
+
       $(this).append(hiddenInput);
-    }); 
-  });
-  
-  </script>
-  
+    });
+
+    const categoryNameInput = document.getElementById('productName');
+    const productPriceInput = document.getElementById('productPrice');
+    const productStockInput = document.getElementById('productStock');
+    const descriptionInput = document.getElementById('productDescription');
+    const imageInput = document.getElementById('product_images');
+    
+  async function submitForm() {
+
+  const isValidateCatName = validateCatName();
+  const isValidatePrice = validatePrice();
+  const isValidateStock = validateStock();
+  const isValidateDescription = validateDescription();
+  const isValidateImage = validateImage();
+  const isValidateCategory = validateCategory();
+
+  if (
+    isValidateCatName &&
+    isValidatePrice &&
+    isValidateStock &&
+    isValidateDescription &&
+    isValidateImage &&
+    isValidateCategory
+  ) {
+    const catForm = document.getElementById('catForm');
+    const formData = new FormData(catForm);
+    formData.append('deletedImages', JSON.stringify(deletedImages));
+
+    fetch('/admin/edit-product?id=<%= product._id %>', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          console.log('Error:', data.error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: data.error,
+          });
+        } else if (data.success) {
+          window.location.href = '/admin/products?message=Product Edited';
+          // Swal.fire({
+          //   icon: 'success',
+          //   title: 'Success!',
+          //   text: 'The Product is updated',
+          // }).then(() => {
+          //   window.location.href = '/admin/edit-product?id=<%= product._id %>';
+          // });
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  } else {
+    // Validation failed, do not submit the form
+    console.log('Validation failed');
+  }
+}
+
+    function validateCatName() {
+      const categoryNameInput = document.getElementById('productName');
+      const productName = categoryNameInput.value.trim();
+      const nameRegex = /^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*$/;
+
+      if (productName.length < 3) {
+        showValidationMessage('catNameValidationMessage', 'Please use at least 3 characters.');
+        return false;
+      } else if (productName.length > 15) {
+        showValidationMessage('catNameValidationMessage', 'Please use at most 15 characters.');
+        return false;
+      } else if (!nameRegex.test(productName)) {
+        showValidationMessage('catNameValidationMessage', 'Invalid Characters not allowed.');
+        return false;
+      } else {
+        hideValidationMessage('catNameValidationMessage');
+        return true;
+      }
+    }
+
+    function validatePrice() {
+      const productPrice = productPriceInput.value.trim();
+
+      if (productPrice.length === 0) {
+        showValidationMessage('productPriceValidationMessage', 'Product price is required.');
+        return false;
+
+      } else if (isNaN(productPrice) || parseFloat(productPrice) <= 0) {
+        showValidationMessage('productPriceValidationMessage', 'Please enter a valid product price.');
+        return false;
+      } else {
+        hideValidationMessage('productPriceValidationMessage');
+        return true;
+      }
+    }
+
+    function validateStock() {
+      const productStock = productStockInput.value.trim();
+      
+      if (productStock.length === 0) {
+        showValidationMessage('productStockValidationMessage', 'Product count is required.');
+        return false;
+
+      } else if (isNaN(productStock) || parseInt(productStock) < 0) {
+        showValidationMessage('productStockValidationMessage', 'Please enter a valid number.');
+        return false;
+      } else {
+        hideValidationMessage('productStockValidationMessage');
+        return true;
+      }
+    }
+
+    function validateDescription() {
+      const description = descriptionInput.value.trim();
+
+      if (description.length === 0) {
+        showValidationMessage('descriptionValidationMessage', 'Please provide a description.');
+        return false;
+      } else if (description.length > 250) {
+        showValidationMessage('descriptionValidationMessage', 'Description should not exceed 250 characters.');
+        return false;
+      } else {
+        hideValidationMessage('descriptionValidationMessage');
+        return true;
+      }
+    }
+
+    function validateImage() {
+      const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      const imageValidationMessage = document.getElementById('imageValidationMessage');
+      const imageContainers = document.querySelectorAll('.image-preview');
+
+      if ((!imageInput.files || imageInput.files.length === 0) && imageContainers.length === 0) {
+        showValidationMessage('imageValidationMessage', 'Please select an image.');
+        return false;
+      }
+
+      if (imageInput.files && imageInput.files.length > 0) {
+        const fileType = imageInput.files[0].type;
+        if (!allowedFileTypes.includes(fileType) && !imageInput.files[0].name.toLowerCase().endsWith('.webp')) {
+          showValidationMessage('imageValidationMessage', 'Invalid file type. Please select a valid image (JPEG, PNG, GIF, WebP).');
+          return false;
+        }
+      }
+
+      hideValidationMessage('imageValidationMessage');
+      return true;
+    }
+
+
+    function validateCategory() {
+      const categorySelect = document.getElementById('productCategory');
+      const selectedCategory = categorySelect.value;
+
+      if (selectedCategory === "") {
+        showValidationMessage('categoryValidationMessage', 'Please select a category.');
+        return false;
+      } else {
+        hideValidationMessage('categoryValidationMessage');
+        return true;
+      }
+    }
+
+    function showValidationMessage(elementId, message) {
+      const validationMessage = document.getElementById(elementId);
+      validationMessage.innerText = message;
+      validationMessage.style.color = 'red';
+    }
+
+    function hideValidationMessage(elementId) {
+      const validationMessage = document.getElementById(elementId);
+      validationMessage.innerText = '';
+    }
+</script>
+
 <%- include('../layout/adminFooter.ejs') %>
