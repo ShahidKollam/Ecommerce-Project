@@ -3,7 +3,7 @@
 <section class="container row justify-content-center">
     <h2 class="row justify-content-center">Edit Banner</h2>
 
-    <form id="bannerForm" action="/banner/edit" method="post" class="reg-form col-lg-6 my-4" enctype="multipart/form-data">
+    <form id="bannerForm" class="reg-form col-lg-6 my-4" enctype="multipart/form-data">
 
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
@@ -12,22 +12,22 @@
 
         <div class="mb-3">
             <label for="description" class="form-label">Description:</label>
-            <textarea class="form-control" id="description" name="description" rows="2" value="<%= banner.description %>"></textarea>
+            <textarea class="form-control" id="description" name="description" rows="2" ><%= banner.description %></textarea>
         </div>
 
         <div class="mb-3">
             <label for="image" class="form-label">Image :</label>
-            <input type="file" class="form-control" accept="image/*" id="image" name="banner-image" value="<%= banner.image %>">
+            <input type="file" class="form-control" accept="image/*" id="image" name="banner-image">
         </div>
 
         <div class="mb-3">
             <label for="url" class="form-label">URL:</label>
             <input type="text" class="form-control" id="url" name="url" value="<%= banner.url %>">
         </div>
-        <input type="hidden" name="id" value="<%= banner._id %>">
+        <input type="hidden" name="id" id="bannerId" value="<%= banner._id %>">
         <div id="errorContainer" class="text-danger"><span></span></div>
 
-        <button type="submit" class="btn btn-success" >Update</button>
+        <button type="button" onclick="submitForm()" class="btn btn-success" >Update</button>
     </form>
 </section>
 
@@ -56,5 +56,84 @@
 
     /* Add more styles as needed */
 </style>
+
+<script>
+    async function submitForm() {
+    var title = document.getElementById('title').value;
+    var description = document.getElementById('description').value;
+    var imageInput = document.getElementById('image').files[0];
+    var url = document.getElementById('url').value;
+    var id = document.getElementById('bannerId').value;    
+    // Basic validation
+    var errorContainer = document.getElementById('errorContainer');
+    errorContainer.innerHTML = '';
+
+    if (title.trim() === '') {
+        displayError('Title is required');
+        return;
+    }
+
+    if (description.trim() === '') {
+        displayError('Description is required');
+        return;
+    }
+
+    if (imageInput) {
+        const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const fileType = imageInput.type;
+        if (!allowedFileTypes.includes(fileType) && !imageInput.name.toLowerCase().endsWith('.webp')) {
+            displayError('Please select a valid image (JPEG, PNG, GIF, WebP).');
+            return;
+        }
+    }
+
+    
+    var formData = new FormData();
+    formData.append('id',id)
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('url', url);
+    if (imageInput) {
+        formData.append('banner-image', imageInput);
+    }
+
+    try {
+        const response = await fetch('/banner/edit', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4500
+            });
+        } else {
+            // await Swal.fire({
+            //     icon: 'success',
+            //     title: 'Banner Added Successfully!',
+            //     showConfirmButton: false,
+            //     timer: 4500
+            // });
+            console.log('Form submitted successfully');
+            window.location.href = '/banner?message=banner updated';
+        }
+    } catch (error) {
+        console.error(error.message);
+    }
+
+    function displayError(message) {
+        var errorMessage = document.createElement('p');
+        errorMessage.textContent = message;
+        errorContainer.appendChild(errorMessage);
+    }
+}
+
+</script>
+
 
 <%- include('../layout/adminFooter.ejs') %>

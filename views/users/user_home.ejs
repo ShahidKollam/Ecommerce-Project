@@ -332,7 +332,7 @@ div.owl-controls,
                     </div>
                 </a>
                 <h3><%= products[i].name %></h3>
-                <p><%= products[i].category.name %></p>
+                <p><%= products[i].category?.name %></p>
                 <span class="product-price">₹<%= products[i].price %></span><br>
 
                 <form action="/add-to-cart" method="POST">

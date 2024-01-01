@@ -28,38 +28,24 @@
         <div class="col-md-6">
           <div class="title">
             <h3>Add New Category</h3><br>
-            <div>
-              <form action="/admin/add-category" method="post">
-                <input type="text" class="category-input" id="category" name="categoryName" placeholder="Enter category name" required>
-                <button type="submit" class="add-category-button" value="add">Add Category</button>
-              </form>
-            </div>
-            <h5><%= message %></h5>
-          </div>
-        </div>
-        <!-- end col -->
-        <div class="col-md-6">
-          <div class="breadcrumb-wrapper">
-            <nav aria-label="breadcrumb">
-              <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                  <a href="">Dashboard</a>
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                  Categories
-                </li>
-              </ol>
-            </nav>
-          </div>
-        </div>
-        <!-- end col -->
+
+            <form action="/admin/add-category" method="post" onsubmit="return validateForm()" class="reg-form" id="form" >
+              <div class="input-group">
+                <input type="text" class="form-control" id="category" name="categoryName" placeholder="Enter category name" 
+
+                         style="width: 100%; max-width: 180px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; box-sizing: border-box; font-size: 12px;" required>
+
+                  <button type="submit" class="btn btn-info btn-sm input-group-btn">Add Category </button>
+              </div>
+            </form>
+
+        <div id="validationMessage"><span></span></div>        
       </div>
-      <!-- end row -->
     </div>
 
     <div class="row">
       <div class="col-lg-12">
-        <div class="card-style mb-30">
+        <div class="card-style mb-20">
           <h5 class="mb-10">Category List</h5>
 
           <div class="table-wrapper table-responsive">
@@ -76,7 +62,6 @@
                     <h4>Action</h4>
                   </th>
                 </tr>
-                <!-- end table row-->
               </thead>
               <tbody>
                 <% if(category.length > 0){ 
@@ -95,19 +80,19 @@
                     </div>
 
                     <div class="action">
-                      <form id="deleteForm <%=i%>" action="/admin/delete-category?id=<%=category[i]._id%>" method="post">
-                        <input type="hidden" name="action" value="<%= category[i].is_deleted ? 'actived' : 'blocked' %>">
-                        <% if (category[i].is_deleted) { %>
-                          <button type="button" value="actived" class="button-style list text-success" onclick="confirmRestore(<%=i%>)">
-                            <i class="lni lni-unblock"></i> RESTORE
-                          </button>
-                        <% } else { %>
-                          <button type="button" value="blocked" class="button-style remove text-danger" onclick="confirmDelete(<%=i%>)">
-                            <i class="lni lni-block"></i> DELETE 
-                          </button>
-                        <% } %>
-                      </form>
+                      <form onsubmit="return submitForm('<%=i%>')" class="reg-form" id="form_<%=i%>">
+                        <input type="hidden" name="id" id="catId" value="<%= category[i]._id %>">
+
+                        <button type="submit" class="button-style <%= category[i].is_deleted ? 'text-success' : 'text-danger' %>"
+                          data-action="<%= category[i].is_deleted ? 'true' : 'false' %>"
+                          <i class="lni <%= category[i].is_deleted ? 'lni-unblock' : 'lni-block' %>"></i>
+                          <%= category[i].is_deleted ? 'RESTORE' : 'DELETE' %>
+                      </button>
+                      
+                    </form>
+                    
                    </div>
+
                   </td>
                 </tr>
                 <% } %>
@@ -125,50 +110,164 @@
 
   </div>
 </section>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+ async function submitForm(index) {
+    event.preventDefault();
+
+    const form = document.getElementById(`form_${index}`);
+    const button = form.querySelector('.button-style');
+
+    if (!button) {
+        console.error('Button not found in the form:', form);
+        return false;
+    }
+
+    const action = button.getAttribute('data-action');
+    const id = form.querySelector('#catId').value;
+
+    if (action == 'true') {
+      await confirmRestore(index);
+    } else if (action == 'false') {
+      await confirmDelete(index);
+    }
+
+    try {
+        const response = await fetch('/admin/delete-category', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                id: id,
+                action: action,
+            }),
+        });
+
+        if (!response.ok) {
+            showErrorAlert(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        //await showSuccessAlert(data.message);
+        window.location.reload();
+    } catch (error) {
+        console.error('Error:', error);
+        showErrorAlert('An error occurred while processing your request.');
+    }
+
+    return false;
+}
+
+  async function confirmDelete(index) {
+        console.log('Confirm Delete called');
+        return Swal.fire({
+            title: 'Are you sure?',
+            text: 'Deleting a category will also delete all associated products!',
+            icon: 'warning',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            customClass: {
+                popup: 'small-swal',
+            }
+        });
+
+    }
+
+    async function confirmRestore(index) {
+        console.log('Confirm Restore called');
+        return Swal.fire({
+            title: 'Are you sure?',
+            text: 'Restoring a category will also restore all associated products!',
+            icon: 'question',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, restore it!',
+            customClass: {
+                popup: 'small-swal',
+            }
+        });
+
+    }
+  function showSuccessAlert(message) {
+      Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: message,
+          showConfirmButton: false,
+          timer: 2000
+      });
+  }
+
+  function showErrorAlert(message) {
+      Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: message,
+          showConfirmButton: false,
+          timer: 2000
+      });
+  }
+</script>
 
 <script>
-  function confirmDelete(index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Deleting a category will also delete all associated products!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-      customClass: {
-        popup: 'small-swal',
+  const nameRegex = /^[a-zA-Z0-9]+(?: [a-zA-Z0-9]+)*$/;
+  
+  function validateForm() {
+      var categoryName = document.getElementById('category').value.trim();
+      var validationMessage = document.getElementById('validationMessage');
+  
+      validationMessage.innerHTML = '';
+  
+      if (categoryName.length < 3) {
+          showValidationMessage(validationMessage, 'Please use at least 3 characters.');
+          return false; // Prevent form submission
+      } else if (categoryName.length > 15) {
+          showValidationMessage(validationMessage, 'Please use at most 15 characters.');
+          return false; // Prevent form submission
+      } else if (!nameRegex.test(categoryName)) {
+          showValidationMessage(validationMessage, 'Invalid characters or consecutive spaces in category name.');
+          return false; // Prevent form submission
+      } else {
+          hideValidationMessage(validationMessage);
+          return true; // Allow form submission
       }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        document.getElementById(`deleteForm${index}`).submit();
-      }
-    });
   }
+  
+  function showValidationMessage(element, message) {
+      element.innerHTML = message;
+      element.style.color = 'red'; // Customize the style as needed
+  }
+  
+  function hideValidationMessage(element) {
+      element.innerHTML = '';
+  }
+  
+  const message = "<%= message %>";
+    if(message){
+        showSuccessToast(message);
+    };
 
-  function confirmRestore(index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Restoring a category will also restore all associated products!',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, restore it!',
-      customClass: {
-        popup: 'small-swal',
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        document.getElementById(`deleteForm${index}`).submit();
-      }
-    });
-  }
+    function showSuccessToast(message) {
+        Toastify({
+            text: message,
+            duration: 5000,
+            gravity: "top",
+            position: "center",
+            backgroundColor: "linear-gradient(to right, #4CAF50, #45a049)",
+            stopOnFocus: true,
+            className: "success-toast",
+        }).showToast();
+    }
+
 </script>
 <style>
   .small-swal {
-    width: 900px;
+    width: 700px;
   }
 </style>
 <%- include('../layout/adminFooter') %>

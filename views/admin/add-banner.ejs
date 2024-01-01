@@ -3,11 +3,11 @@
 <section class="container row justify-content-center">
     <h2 class="row justify-content-center">Add Banner</h2>
 
-    <form id="bannerForm" action="/banner/add" method="post" class="reg-form col-lg-6 my-4" enctype="multipart/form-data">
+    <form id="bannerForm" class="reg-form col-lg-6 my-4" enctype="multipart/form-data">
 
         <div class="mb-3">
             <label for="title" class="form-label">Title</label>
-            <input type="text" class="form-control" id="title" name="title" required>
+            <input type="text" class="form-control" id="title" name="title" >
         </div>
 
         <div class="mb-3">
@@ -27,72 +27,92 @@
 
         <div id="errorContainer" class="text-danger"><span></span></div>
 
-        <button type="submit" class="btn btn-success" >Add Banner</button>
+        <button type="button" onclick="submitForm()" class="btn btn-success" >Add Banner</button>
     </form>
 </section>
 
-<!-- Include SweetAlert CSS and JS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     async function submitForm() {
-        // Get form values
-        var title = document.getElementById('title').value;
-        var description = document.getElementById('description').value;
-        var imageInput = document.getElementById('image');
-        var url = document.getElementById('url').value;
+    var title = document.getElementById('title').value;
+    var description = document.getElementById('description').value;
+    var imageInput = document.getElementById('image');
+    var url = document.getElementById('url').value;
 
-        // Basic validation
-        var errorContainer = document.getElementById('errorContainer');
-        errorContainer.innerHTML = ''; // Clear previous error messages
+    // Basic validation
+    var errorContainer = document.getElementById('errorContainer');
+    errorContainer.innerHTML = '';
 
-        if (title.trim() === '') {
-            displayError('Title is required');
-            return;
-        }
+    if (title.trim() === '') {
+        displayError('Title is required');
+        return;
+    }
 
-        var formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('image', imageInput.files[0]); // Get the first file from the input
-        formData.append('url', url);
+    // if (description.trim() === '') {
+    //     displayError('Description is required');
+    //     return;
+    // }
 
+    if (!imageInput.files[0]) {
+        displayError('Image is required');
+        return;
+    }
+    const allowedFileTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const fileType = imageInput.files[0].type;
+
+    if (!allowedFileTypes.includes(fileType) && !imageInput.files[0].name.toLowerCase().endsWith('.webp')) {
+        displayError('Please select a valid image (JPEG, PNG, GIF, WebP).');
+        return ;
+    }
+
+    if (url.trim() == '') {
+        displayError('Please enter a valid URL');
+        return;
+    }
+    var formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('banner-image', imageInput.files[0]); // Get the first file from the input
+    formData.append('url', url);
+
+    try {
         const response = await fetch('/banner/add', {
             method: 'POST',
             body: formData
         });
 
-        try {
-            if (!response.ok) {
-                const errorMessage = await response.text();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                    showConfirmButton: false,
-                    timer: 4500
-                });
-            } else {
-                await Swal.fire({
-                    icon: 'success',
-                    title: 'Banner Added Successfully!',
-                    showConfirmButton: false,
-                    timer: 4500
-                });
-                console.log('Form submitted successfully');
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error(error.message);
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: errorMessage,
+                showConfirmButton: false,
+                timer: 4500
+            });
+        } else {
+            await Swal.fire({
+                icon: 'success',
+                title: 'Banner Added Successfully!',
+                showConfirmButton: false,
+                timer: 4500
+            });
+            console.log('Form submitted successfully');
+            window.location.reload();
         }
-
-        function displayError(message) {
-            var errorMessage = document.createElement('p');
-            errorMessage.textContent = message;
-            errorContainer.appendChild(errorMessage);
-        }
+    } catch (error) {
+        console.error(error.message);
     }
+
+    function displayError(message) {
+        var errorMessage = document.createElement('p');
+        errorMessage.textContent = message;
+        errorContainer.appendChild(errorMessage);
+    }
+}
+
 </script>
 
 <style>

@@ -116,7 +116,8 @@ const chart = async (req, res) => {
       const { filter } = req.query;
       let filteredData = [];
   
-      if (filter === 'monthly') {
+      
+    if (filter === 'monthly') {
         const monthlySalesData = await Order.aggregate([
           {
             $match: { status: 'Pending' }
@@ -135,12 +136,15 @@ const chart = async (req, res) => {
               month: "$_id",
               totalSales: 1
             }
+          },
+          {
+            $sort: { month: 1 } 
           }
         ]);
   
         filteredData = monthlySalesData;
         //console.log("Monthly Data:", filteredData);
-
+  
       } else if (filter === 'yearly') {
 
         const yearlySalesData = await Order.aggregate([
@@ -202,7 +206,8 @@ const chart = async (req, res) => {
         weeks: filteredData.map(item => item.week),
         years: filteredData.map(item => item.year),      
     };
-      res.json(responseData);
+    console.log(responseData);
+    res.json(responseData);
     } catch (error) {                                  
       console.error('Error:', error);
       res.status(500).json({ error: 'Internal Server Error' });

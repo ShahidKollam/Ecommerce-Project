@@ -208,7 +208,7 @@
                 const newData = await fetchDataBasedOnFilter(selectedFilter);
 
                 if (selectedFilter === 'monthly') {
-
+                  
                   window.salesChart.data.labels = newData.monthNames.map(month => new Date(month).toLocaleString('default', { month: 'long', year: 'numeric' }));
                   window.salesChart.data.datasets[0].label = "Monthly Sales";
                   window.salesChart.options.scales.x.data = newData.monthNames;
@@ -263,12 +263,19 @@
                 };
               }
             }
-            function getStartDateOfWeek(year, weekNumber) {
-              const date = new Date(year, 0, 1); // January 1st of the year
-              const daysToAdd = (weekNumber - 1) * 7;
-              date.setDate(date.getDate() + daysToAdd - date.getDay()); // Set to the first day of the week
-              return date;
+
+          function getStartDateOfWeek(year, weekNumber) {
+            const date = new Date(year, 0, 1); 
+            const daysToAdd = (weekNumber - 1) * 7;
+            date.setDate(date.getDate() + daysToAdd - date.getDay()); 
+
+            if (date.getFullYear() < year) {
+              date.setDate(date.getDate() + 7);
             }
+
+            return date;
+          }
+
 
 </script>
             

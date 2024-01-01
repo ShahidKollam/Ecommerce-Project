@@ -144,9 +144,16 @@
         const offerPriceCell = document.getElementById(`offerPrice${i}`);
         const discountPercentageCell = document.getElementById(`discountPercentage${i}`);
         const price = document.getElementById(`price${i}`).innerText;
-        const offer = document.getElementById(`offer${i}`).value;
+        const offerInput = document.getElementById(`offer${i}`);
         const id = document.getElementById(`id${i}`).value;
-        
+
+        const offer = offerInput.value.trim();
+        if (!isValidOffer(offer)) {
+            const errorMessage = getOfferErrorMessage(offer);
+            showErrorToast(errorMessage);
+            return;
+        }
+
         var formData = {
             offer: offer,
             _id: id,
@@ -180,6 +187,17 @@
         }
     }
 
+    function isValidOffer(value) {
+        const numericValue = parseFloat(value);
+        return /^\d+(\.\d+)?$/.test(value) && numericValue >= 0 && numericValue <= 100;
+    }
+
+    function getOfferErrorMessage(offer) {
+        if (parseFloat(offer) > 100) {
+            return 'Offer percentage cannot be more than 100.';
+        }
+        return 'Please enter a valid offer % [between 0 & 100].';
+    }
 
     function showSuccessToast(message) {
         Toastify({

@@ -131,6 +131,11 @@
             console.error(`Failed to ${banner.isBlocked ? 'unblock' : 'block'} banner`);
         }
     }
+    
+    const message = "<%= message %>";
+    if(message){
+        showSuccessToast(message);
+    };
 
     function showSuccessToast(message) {
         Toastify({

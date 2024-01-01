@@ -87,7 +87,6 @@ const updateBanner = async (req, res) => {
         console.log(req.body);
 
         let image;
-
         if (req.file && req.file.filename && req.file.filename.length > 0) {
             image = req.file.filename;
         } else {
@@ -104,8 +103,8 @@ const updateBanner = async (req, res) => {
             },
             { new: true } 
         );
-
-        res.redirect('/banner?message=Banner Updated')
+        console.log(banner);
+        res.json({success: true})   
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ error: 'Internal Server Error' });

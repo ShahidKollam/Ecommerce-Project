@@ -64,22 +64,42 @@
             displayError('Coupon Code is required');
             return;
         }
-
+        if (couponCode.includes(' ')) {
+            displayError('Avoid spaces in coupon code');
+            return;
+        }
         if (couponCode.length != 5) {
-        displayError('Coupon Code must be 5 characters long');
-        return;
+            displayError('Coupon Code must be 5 characters long');
+            return;
         }
 
         if (discountAmount.trim() === '') {
-            displayError('Discount Amount is required');
+            displayError('Discount % is required');
             return;
         }   
+        if (discountAmount < 0 || discountAmount > 100) {
+            displayError('Discount % must be between 0 and 100');
+            return;
+        }
+
+        if (minPurchaseAmount.trim() === '') {
+            displayError('Purchase Amount % is required');
+            return;
+        }   
+        if (minPurchaseAmount <= 0 ) {
+            displayError('Purchase Amount % must be above 0 ');
+            return;
+        }
 
         if (maxUses.trim() === '') {
             displayError('Number of Coupon is required');
             return;
         }
-            
+        if (maxUses < 0) {
+            displayError('Give number of coupon above 0');
+            return;
+        }
+
         if (startDate.trim() === '') {
             displayError('Start Date is required');
             return;

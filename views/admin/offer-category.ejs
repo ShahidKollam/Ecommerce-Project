@@ -11,7 +11,6 @@
             <h5><%=  %></h5>
           </div>
         </div>
-        <!-- end col -->
         <div class="col-md-6">
           <div class="breadcrumb-wrapper">
             <nav aria-label="breadcrumb">
@@ -26,9 +25,7 @@
             </nav>
           </div>
         </div>
-        <!-- end col -->
       </div>
-      <!-- end row -->
     </div>
 
     <div class="row">
@@ -74,14 +71,15 @@
                       <form action="/category-offer" method="post" class="row">
                         <div class="col-8">
                           <input type="hidden" name="id" value="<%= category[i]._id %>">
-                          <input type="number" class="form-control" id="offer" name="offer" placeholder="Enter Offer [%]" required>
+                          <input type="number" class="form-control" id="offer" name="offer" placeholder="Enter [%]" required 
+                          pattern="\d+" title="Please enter a valid number" min="0" max="100">
                         </div>
                         <div class="col-4">
                           <button type="submit" class="btn btn-info btn-block" value="add">UPDATE</button>
                         </div>
                       </form>
                     </div>
-                    
+
                   </td>
                 </tr>
                 <% } %>
@@ -101,47 +99,22 @@
 </section>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <script>
 
-  function confirmDelete(index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Deleting a category will also delete all associated products!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-      customClass: {
-        popup: 'small-swal',
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        document.getElementById(`deleteForm${index}`).submit();
-      }
-    });
-  }
+    document.addEventListener('DOMContentLoaded', function () {
+    const offerInput = document.getElementById('offer');
 
-  function confirmRestore(index) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Restoring a category will also restore all associated products!',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, restore it!',
-      customClass: {
-        popup: 'small-swal',
-      }
-    }).then((result) => {
-      if (result.isConfirmed) {
-        document.getElementById(`deleteForm${index}`).submit();
+    offerInput.addEventListener('input', function () {
+      const value = parseInt(offerInput.value, 10);
+
+      if (isNaN(value) || value < 0 || value > 100) {
+        offerInput.setCustomValidity('Please enter a valid number between 0 and 100.');
+      } else {
+        offerInput.setCustomValidity('');
       }
     });
-  }
+  });
 
   const message = "<%= message %>";
 
@@ -151,16 +124,12 @@
       duration: 5000,
       gravity: "top",
       position: "center",
-      backgroundColor: "linear-gradient(to right, #e53935, #d32f2f)",
+      backgroundColor: "linear-gradient(to right, #4CAF50, #45a049)",
       stopOnFocus: true, // Stop timeout when the toast is hovered
       className: "success-toast", // Add a custom class for styling
     }).showToast();
   };
 
 </script>
-<style>
-  .small-swal {
-    width: 900px;
-  }
-</style>
+
 <%- include('../layout/adminFooter') %>
