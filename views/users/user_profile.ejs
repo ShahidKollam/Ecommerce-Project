@@ -36,7 +36,7 @@
             align-items: center;
         }
 
-        .btn {
+        .btnn {
             padding: 5px 15px; /* Adjust the padding for a smaller or medium-sized button */
             font-size: 13px; /* Adjust the font size for a smaller or medium-sized button */
             background-color: #007bff;
@@ -53,26 +53,57 @@
     <div class="dashboard-container">
         <div class="address-details">
             <h3 class="header">Account Details</h3>
-            <p><%=userData.name %></p>
-            <p><a href=""><%=userData.email %></a></p>
-            <p><a href="">91 <%=userData.mobile %></a></p>
-            <a href="/users/edit-user?id=<%=userData._id%>" class="btn">Edit user info</a>
-            <a href="" class="btn">Change Password</a>
+            <p>Full Name: <%=userData.name %></p>
+            <p>Email:<a href=""> <%=userData.email %></a></p>
+            <p>Mob:<a href=""> 91 <%=userData.mobile %></a></p>
+            <a href="/users/edit-user?id=<%=userData._id%>" class="btn btn-info btn-sm">Edit user info</a>
+            <a href="/changePassword?id=<%=userData._id%>" class="btn btn-danger btn-sm">Change Password</a>
         </div>
         
     <div class="address-details">
         <h2>Address Details</h2>
 
             <% address.forEach(address => { %>
-            <p>> Full Address: <%= address.house + ', ' + address.street + ', ' + address.city + ', ' + address.state + ', ' + address.pin %></p>
-            
+            <p>* Full Address: <%= address.name + ', ' + address.house + ', ' + address.street + ', ' + address.city + ', ' + address.state + ', ' + address.pin %></p>
+                <div class="margin-bottom">
+                    <form action="/address/delete/<%= address._id %>" method="post">
+                        <input type="hidden" name="" value="">
+                        <button class="btn btn-info btn-sm" type="submit">Delete Address</button>
+                        <a href="/address/edit?id=<%= address._id %>" class="btn btn-info btn-sm">Edit Address</a>
+                    </form>
+                    <br>
+                </div>
         <% }) %>
-        <a href="#" class="btn">Edit Address</a>
+
+        <a href="/address" class="btn btn-success btn">Add New Address</a>
+
     </div>
+
     <hr>
-    <div class="order-history">
-            <h3 >Order History</h3>
-            <a href="/order-history" class="btn">View Order History</a>
-        </div>
     </div>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+<script>
+        
+  const message = "<%= message %>";
+    if(message){
+        showSuccessToast(message);
+    };
+
+    function showSuccessToast(message) {
+        Toastify({
+            text: message,
+            duration: 5000,
+            gravity: "top",
+            position: "center",
+            backgroundColor: "linear-gradient(to right, #4CAF50, #45a049)",
+            stopOnFocus: true,
+            className: "success-toast",
+        }).showToast();
+    }
+
+</script>
+
 <%- include('../layout/footer.ejs' )%>

@@ -1,50 +1,4 @@
 <%- include('../layout/header.ejs' )%>
-
-<div class="card-style mb-30">
-  <form action="/users/edit-user" method="post" class="reg-form">
-     
-      <div class="form-group fullname">
-          <h2>Edit User</h2>
-          <br>
-        <label for="fullname">Full Name</label>
-        <input type="text" id="fullname" name="name" placeholder="Enter your full name" value="<%= users.name %>">
-      </div>
-      <div class="form-group email">
-        <label for="email">Email Address</label>
-        <input type="text" id="email" name="email" placeholder="Enter your email address" value="<%= users.email %>">
-      </div>
-      <div class="form-group mno">
-        <label for="mno">Mobile Number</label>
-        <input type="text" id="mno" name="mno" placeholder="Enter your mobile number" value="<%= users.mobile %>">
-      </div>
-      <div class="form-group submit-btn">
-        <input type="submit" value="Confirm">
-      </div>
-      <input type="hidden" name="id" value="<%= users._id %>">
-      <!-- <script>
-          // Check if the message query parameter is present in the URL
-          const urlParams = new URLSearchParams(window.location.search);
-          const info = urlParams.get('info');
-          
-          if (info) {
-              // Display an alert with the message
-              alert(info);
-              // remove alert when refresh
-              const newURL = window.location.pathname;
-              window.history.replaceState({}, document.title, newURL);
-          }
-      </script> -->
-        
-      <%
-      if(typeof message !== 'undefined'){
-      %>
-      <p style="color: blue;"><%= message %></p>
-      <% } %>
-      
-      
-  <!-- end input -->
-</div>
-
 <style>
   .centered-content {
       text-align: center; /* Center the content horizontally */
@@ -95,4 +49,88 @@
       background-color: #0056b3;
   }
 </style>
+<div class="card-style mb-30">
+  <h1>Edit User Info</h1>
 
+  <form action="/users/edit-user" method="post" class="reg-form" onsubmit="return validateForm()">
+     
+      <div class="form-group fullname">
+        <label for="fullname">Full Name</label>
+        <input type="text" id="fullname" name="name" placeholder="Enter your full name" value="<%= users.name %>">
+      </div>
+
+      <!-- <div class="form-group email">
+        <label for="email">Email Address</label>
+        <input type="text" id="email" name="email" placeholder="Enter your email address" value="<%= users.email %>">
+      </div> -->
+
+      <div class="form-group mno">
+        <label for="mno">Mobile Number</label>
+        <input type="text" id="mno" name="mno" placeholder="Enter your mobile number" value="<%= users.mobile %>">
+      </div>
+
+      <input type="hidden" name="id" value="<%= users._id %>">
+      
+      <div id="passwordMessage">
+        <% if (typeof message !== 'undefined' && message !== null) { %>
+            <p style="color: red;"><%= message %></p>
+        <% } %>
+    </div> <br>
+    
+    <div class="form-group submit-btn">
+      <input type="submit" value="Confirm">
+    </div>
+
+  </form>   
+</div>
+
+<script>
+  function validateForm() {
+      var fullName = document.getElementById('fullname').value.trim();
+      var mobile = document.getElementById('mno').value.trim();
+
+      if (fullName === "") {
+          displayValidationMessage("Please enter fullname.", 'error');
+          return false;
+      } else {
+          var namePattern = /^[a-zA-Z\s]+$/;
+          if (fullName.length < 2 || fullName.length > 15 || !namePattern.test(fullName)) {
+          displayValidationMessage('Enter a valid full name (2-15 characters only)');
+          return false;
+        }
+      }
+
+      if (mobile === "") {
+          displayValidationMessage("Please enter mobile number.");
+          return false;
+      }else {
+          var numericPattern = /^\d+$/;
+          if (!numericPattern.test(mobile)) {
+          displayValidationMessage('Enter a valid numeric telephone number');
+          return false;
+        }
+      }
+      return true;
+  }
+
+  function displayValidationMessage(message, type) {
+      var messageContainer = document.getElementById('passwordMessage');
+      messageContainer.innerHTML = message;
+      messageContainer.style.color = (type === 'error') ? 'red' : 'green';
+  }
+</script>
+
+      <!-- <script>
+          // Check if the message query parameter is present in the URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const info = urlParams.get('info');
+          
+          if (info) {
+              // Display an alert with the message
+              alert(info);
+              // remove alert when refresh
+              const newURL = window.location.pathname;
+              window.history.replaceState({}, document.title, newURL);
+          }
+      </script> -->
+        

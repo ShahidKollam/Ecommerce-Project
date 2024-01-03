@@ -247,7 +247,7 @@ const verifyLogin = async(req,res)=>{
             if (userData.is_blocked) {
                 res.render('login', { message: 'Your account is blocked. Please contact support.' });
             } else { 
-            const passwordMatch =await bcrypt.compare(password,userData.password)
+            const passwordMatch = await bcrypt.compare(password,userData.password)
             if (passwordMatch) {
                 req.session.user = userData._id;
                 req.session.name = userData.name;
@@ -549,22 +549,6 @@ const singleItem = async(req,res)=>{
     }
 } 
 
-const userProfile = async(req,res)=>{
-    try {
-        const user = req.session.name
-        const id = req.session.user
-        const userData = await User.findById({_id:id})
-        const addressData = await Address.find({user_id:id}).populate('user_id')
-        res.render('user_profile',{
-            user,
-            userData,
-            address : addressData
-        })
-    } catch (error) {
-        console.log(error.message);
-    }
-}
-
 const editUser = async(req,res)=>{
     try {
         const user = req.session.name
@@ -590,7 +574,7 @@ const updateUser = async(req,res)=>{
             email:req.body.email,
             mobile:req.body.mno
         }})
-        res.redirect('/users/profile')
+        res.redirect('/users/profile?message=User updated')
     } catch (error) {
         console.log(error.message);
     }
@@ -647,18 +631,16 @@ const generateRandomString = () => {
 const forgetVerify = async(req,res)=>{
     try {
         const email = req.body.email
-        const userData = await User.findOne({email:email})
-        //console.log(userData);
+        const userData = await User.findOne({email: email})
         if(userData){
             if (userData.is_verified === 0) {
                 res.render('forget',{message:'please verify your email'})
             } else {
                 const randomString = generateRandomString()
                 console.log(randomString);
-                const updatedData = await User.updateOne({email:email},{$set:{token:randomString}})
+                const updatedData = await User.updateOne({email: email},{$set:{token: randomString}})
                 sendMailReset(userData.name,userData.email,randomString)
                 res.render('forget',{message:'Please check your email to reset password'})
-
             }
         }else{
             res.render('forget',{message:'User email is incorrect'})
@@ -672,8 +654,9 @@ const forgetPasswordLoad = async(req,res)=>{
     try {
         const token = req.query.token
         const tokenData = await User.findOne({token:token})
+
         if (tokenData) {
-            res.render('reset-password',{user_id:tokenData._id})
+            res.render('reset-password',{user_id: tokenData._id})
         } else {
             res.render('404',{message:'Token is Invalid'})
         }
@@ -686,13 +669,25 @@ const resetPassword = async(req,res)=>{
     try {
         const password = req.body.password
         const user_id = req.body.user_id
-        const spassword = await securePassword(password)
-        const updatedData = await User.updateOne(
+        const cpassword = req.body.cpassword
+
+        if(password !== cpassword){
+            res.render('reset-password',{
+                message: 'Passwords do not match',
+                user_id
+            })
+
+        } else {                                      
+            const spassword = await securePassword(password)
+            const updatedData = await User.updateOne(
             {_id:user_id},
-            {$set:{password:spassword,
+            {$set:{
+                password:spassword,
                 token:''
             }})
-            res.redirect('/')
+            res.redirect('/login')
+        }
+
     } catch (error) {
         console.log(error.message);
     }
@@ -750,7 +745,6 @@ module.exports = {
     loadFilter,
     filter,
     singleItem,
-    userProfile,
     editUser,
     updateUser,
     forgetLoad,

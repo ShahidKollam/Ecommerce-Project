@@ -3,39 +3,40 @@
 <div>
   <div class="container right-border-box col-4">
     <div class="address-form">
-      <h1>Add Address</h1>
+      <h1>Edit Address</h1>
 
-      <form onsubmit="return validateForm()" id="addressForm" action="/address" method="POST">
+      <form onsubmit="return validateForm()" id="addressForm" action="/address/edit" method="POST">
         <div class="form-group">
           <label for="name">House Name</label>
-          <input type="text" id="name" name="name" class="form-control" placeholder="Enter House Name">
+          <input type="text" id="name" name="name" class="form-control" value="<%= addressData.name %>" placeholder="Enter House Name">
           <div id="nameError" class="error-message"></div>
         </div>
         <div class="form-group">
           <label for="house">House no:</label>
-          <input type="text" id="house" name="house" class="form-control" placeholder="Enter House no">
+          <input type="text" id="house" name="house" class="form-control" value="<%= addressData.house %>" placeholder="Enter House no">
           <div id="houseError" class="error-message"></div>
         </div>
         <div class="form-group">
           <label for="street">Street </label>
-          <input type="text" id="street" name="street" class="form-control" placeholder="Enter Street ">
+          <input type="text" id="street" name="street" class="form-control" value="<%= addressData.street %>" placeholder="Enter Street ">
           <div id="streetError" class="error-message"></div>
         </div>
         <div class="form-group">
           <label for="city">City</label>
-          <input type="text" id="city" name="city" class="form-control" placeholder="Enter City">
+          <input type="text" id="city" name="city" class="form-control" value="<%= addressData.city %>" placeholder="Enter City">
           <div id="cityError" class="error-message"></div>
         </div>
         <div class="form-group">
           <label for="state">State</label>
-          <input type="text" id="state" name="state" class="form-control" placeholder="Enter State">
+          <input type="text" id="state" name="state" class="form-control" value="<%= addressData.state %>" placeholder="Enter State">
           <div id="stateError" class="error-message"></div>
         </div>
         <div class="form-group">
           <label for="zip">PIN Code</label>
-          <input type="number" id="zip" name="zip" class="form-control" placeholder="Enter PIN Code">
+          <input type="number" id="zip" name="zip" class="form-control" value="<%= addressData.pin %>" placeholder="Enter PIN Code">
           <div id="zipError" class="error-message"></div>
         </div>
+        <input type="hidden" name="id" value="<%= addressData._id %>">
         <button type="submit" class="btn btn-primary" style="height: 35px; width: 150px;">Submit Address</button>
       </form>
     </div>

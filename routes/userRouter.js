@@ -33,7 +33,6 @@ user_route.get('/register-page',auth.isLogout,userController.loadRegister)
 user_route.get('/users/search',userController.searchLoad) 
 user_route.get('/users/filter',userController.loadFilter) 
 user_route.get('/users/item-single',userController.singleItem) 
-user_route.get('/users/profile',userController.userProfile) 
 
 user_route.post('/login',userController.verifyLogin)
 user_route.post('/register',userController.insertUser)
@@ -60,9 +59,16 @@ user_route.post('/add-to-cart',cartController.add_cart)
 user_route.post('/cart-delete',cartController.delete_cart)
 user_route.post('/cart-update',cartController.update_cart)
 
-// Address
+// Address & user-profile
+user_route.get('/users/profile',profileCtrl.userProfile) 
 user_route.get('/address',profileCtrl.new_address)
 user_route.post('/address',profileCtrl.add_address)
+user_route.get('/address/edit',profileCtrl.editAddress)
+user_route.post('/address/edit',profileCtrl.updateAddress)
+user_route.post('/address/delete/:addressId',profileCtrl.deleteAddress)
+user_route.get('/changePassword',profileCtrl.changePassword)
+user_route.post('/changePassword',profileCtrl.updatePassword)
+
 
 // checkout
 user_route.get('/checkout',checkoutCtrl.loadCheckout)
@@ -70,7 +76,6 @@ user_route.post('/place-order',checkoutCtrl.placeOrder)
 user_route.get('/order-success',checkoutCtrl.orderSuccess)
 user_route.post('/verify-coupon',coupanCtrl.verifyCoupon)
 user_route.post('/get-coupon',coupanCtrl.getCoupon)
-
 
 // order 
 user_route.get('/order-history',orderCtrl.orderHistory)

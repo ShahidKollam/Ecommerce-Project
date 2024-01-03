@@ -21,8 +21,9 @@ const generate_id = async()=>{
 const loadCheckout = async(req,res)=>{
     try {
         const user = req.session.name
+        const id = req.session.user
         const message = req.query
-        const address = await Address.find()
+        const address = await Address.find({user_id: id})
         const cartData = await Cart_item.find().populate("product_id")
         const coupon = await Coupon.find()
         res.render('checkout',{
