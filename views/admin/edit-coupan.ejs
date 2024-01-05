@@ -1,0 +1,213 @@
+<%- include('../layout/adminHeader.ejs') %>
+
+<section class="container row justify-content-center">
+    <h2 class="row justify-content-center">Edit Coupon</h2>
+
+    <form id="couponForm" class="reg-form col-lg-6 my-4">
+
+        <div class="mb-3">
+            <label for="couponCode" class="form-label">Coupon Code:</label>
+            <input type="text" class="form-control" id="couponCode" name="couponCode" value="<%= coupon.couponCode %>" readonly maxlength="5" title="Coupon code is not editable">
+        </div>
+        
+        <div class="mb-3">
+            <label for="discountAmount" class="form-label">Discount (%):</label>
+            <div class="input-group">
+                <input type="number" class="form-control" id="discountAmount" name="discountAmount" value="<%= coupon.discountAmount %>" required>
+                <span class="input-group-text">%</span>
+            </div>
+        </div>
+        
+        <div class="mb-3">
+            <label for="minAmount" class="form-label">Order Amount:</label>
+            <div class="input-group">
+                <input type="number" class="form-control" id="minAmount" name="minAmount" value="<%= coupon.minPurchaseAmount %>" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="maxUses" class="form-label">Number of Coupon:</label>
+            <input type="number" class="form-control" id="maxUses" name="maxUses" value="<%= coupon.maxUses %>" required>
+        </div>
+        <%
+            // Assuming coupon.expirationDate is a valid date string
+            const expirationDate = new Date(coupon.expirationDate);
+            const startDate = new Date(coupon.startDate);
+
+            const formattedStartDate = startDate.toISOString().split('T')[0]; // Extract YYYY-MM-DD
+            const formattedDate = expirationDate.toISOString().split('T')[0]; // Extract YYYY-MM-DD
+        %>
+        <div class="mb-3">
+            <label for="startDate" class="form-label">Start Date:</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" value="<%= formattedStartDate %>" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="expirationDate" class="form-label">Expiry Date:</label>  
+          <input type="date" class="form-control" id="expirationDate" name="expirationDate" value="<%= formattedDate %>" required>
+        </div>
+
+        <div id="errorContainer" class="text-danger"><span></span></div>
+        <input type="hidden" name="coupon_id" id="id" value="<%= coupon._id %>">
+        <button type="button" class="btn btn-success" onclick="submitForm()">Add Coupon</button>
+    </form>
+</section>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    async function submitForm() {
+        // Get form values
+        var couponCode = document.getElementById('couponCode').value.toUpperCase();
+        var discountAmount = document.getElementById('discountAmount').value;
+        var minPurchaseAmount = document.getElementById("minAmount").value;
+        var expirationDate = document.getElementById('expirationDate').value;
+        var startDate = document.getElementById('startDate').value;
+        var maxUses = document.getElementById('maxUses').value;
+        var id = document.getElementById('id').value;
+
+        // Basic validation
+        var errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = ''; // Clear previous error messages
+
+        if (couponCode.trim() === '') {
+            displayError('Coupon Code is required');
+            return;
+        }
+        if (couponCode.includes(' ')) {
+            displayError('Avoid spaces in coupon code');
+            return;
+        }
+        if (couponCode.length != 5) {
+            displayError('Coupon Code must be 5 characters long');
+            return;
+        }
+
+        if (discountAmount.trim() === '') {
+            displayError('Discount % is required');
+            return;
+        }   
+        if (discountAmount < 0 || discountAmount > 100) {
+            displayError('Discount % must be between 0 and 100');
+            return;
+        }
+
+        if (minPurchaseAmount.trim() === '') {
+            displayError('Purchase Amount % is required');
+            return;
+        }   
+        if (minPurchaseAmount <= 0 ) {
+            displayError('Purchase Amount % must be above 0 ');
+            return;
+        }
+
+        if (maxUses.trim() === '') {
+            displayError('Number of Coupon is required');
+            return;
+        }
+        if (maxUses < 0) {
+            displayError('Give number of coupon above 0');
+            return;
+        }
+
+        if (startDate.trim() === '') {
+            displayError('Start Date is required');
+            return;
+        }
+
+        if (expirationDate.trim() === '') {
+            displayError('Expiration Date is required');
+            return;
+        }
+        var currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        // if (new Date(startDate) < currentDate) {
+        //     displayError('Start Date cannot be before the current date');
+        //     return;
+        // }
+
+        // if (new Date(expirationDate) < currentDate) {
+        //     displayError('Expiration Date cannot be before the current date');
+        //     return;
+        // }
+
+        if (new Date(startDate) > new Date(expirationDate)) {
+            displayError('Start Date should be before Expiration Date');
+            return;
+        }
+
+        var formData = {
+            id: id,
+            couponCode: couponCode,
+            discountAmount: discountAmount,
+            maxUses: maxUses,
+            expirationDate: expirationDate,
+            startDate: startDate,
+            minPurchaseAmount: minPurchaseAmount,
+        };
+
+        const response = await fetch('/editCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+        try {
+            if (!response.ok) {
+                const errorMessage = await response.json();
+                Swal.fire({
+                icon: 'error',
+                title: errorMessage.error, 
+                showConfirmButton: false,
+                timer: 1500
+            });
+            } else {
+                await Swal.fire({
+                icon: 'success',
+                title: `Coupon Edited Successfully!`, 
+                showConfirmButton: false,
+                timer: 1500
+            });
+            console.log('Form submitted successfully');
+            window.location.href = '/coupan'
+
+            }
+        } catch (error) {
+            console.error(error.message);
+        }
+        
+    function displayError(message) {
+        var errorContainer = document.getElementById('errorContainer');
+        var errorMessage = document.createElement('p');
+        errorMessage.textContent = message;
+        errorContainer.appendChild(errorMessage);
+    }
+    }
+</script>
+
+<style>
+    body {
+        background-color: #f8f9fa; /* Set your desired background color */
+    }
+
+    .container {
+        margin-top: 20px; /* Adjust the margin as needed */
+    }
+
+    .reg-form {
+        background-color: #eeeded; /* Set the form background color */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    label {
+        font-weight: bold;
+    }
+
+    /* Add more styles as needed */
+</style>
+
+<%- include('../layout/adminFooter.ejs') %>

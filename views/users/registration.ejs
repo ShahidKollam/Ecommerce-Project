@@ -402,7 +402,7 @@
                 
                 function displayErrorMessag(message) {
                   const errorMessageContainer = document.getElementById('error-message-container');
-  
+                  errorMessageContainer.innerHTML = ''
                   if (!errorMessageContainer) {
                       const container = document.createElement('div');
                       container.id = 'error-message-container';
@@ -477,6 +477,9 @@
                                 console.log('OTP verification successful!');
                                 $('#otpModal').modal('hide');
                                 displaySuccessMessage(response.message)
+                                setTimeout(function () {
+                                    window.location.href = '/login';
+                                }, 4000);
                             } else {
                                 console.error('OTP verification failed:', response.error);
                                 displayError(response.error);
@@ -557,7 +560,7 @@
                           title: 'Verification Successful!',
                           text: "Continue With Login",
                           showConfirmButton: false,
-                          timer: 15000, 
+                          timer: 5000, 
                           customClass: {
                               popup: 'sweetalert-custom-popup',
                               title: 'sweetalert-custom-title',

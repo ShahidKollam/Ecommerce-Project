@@ -15,9 +15,65 @@ const loadAddCoupon = async (req, res) => {
     }
 };
 
+const loadEditCoupon = async (req, res) => {
+    try {
+        const adminName = req.session.adminName
+        const adminEmail = req.session.adminEmail
+        const { id } = req.query
+
+        const coupon = await Coupon.findById({_id: id}).sort({_id:-1}) 
+        res.render('edit-coupan',{
+            adminEmail,
+            adminName,
+            coupon
+        });
+    } catch (error) {
+        console.log(error.message);
+    }
+};
+
+const updateCoupon = async (req, res) => {
+    try {
+        const { couponCode, discountAmount, maxUses, expirationDate, startDate, minPurchaseAmount, id } = req.body;
+
+        // const existing = await Coupon.findOne({couponCode})
+        // if(existing.couponCode ){
+        //     return res.status(404).json({ error: 'Already Existing Code' });
+        // }
+        
+        console.log(req.body);
+
+        const updatedCoupon = await Coupon.findByIdAndUpdate(
+            id ,
+            {
+                $set: {
+                    couponCode,
+                    discountAmount,
+                    maxUses,
+                    minPurchaseAmount,
+                    startDate: new Date(startDate),
+                    expirationDate: new Date(expirationDate),
+                }
+            },
+            { new: true } 
+        );
+
+        console.log(updatedCoupon);
+        if (!updatedCoupon) {
+            return res.status(404).json({ error: 'Coupon not found' });
+        }
+
+        res.status(200).json({ message: 'Coupon updated successfully', updatedCoupon });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
 const saveCoupon = async (req, res) => {
     try {
         const { couponCode, discountAmount, maxUses, expirationDate, startDate, minPurchaseAmount } = req.body;
+
         const existing = await Coupon.findOne({couponCode})
         console.log(req.body);
         if(existing){
@@ -175,4 +231,6 @@ module.exports = {
     deleteCoupon,
     verifyCoupon,
     getCoupon,
+    loadEditCoupon,
+    updateCoupon
 }

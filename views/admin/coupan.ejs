@@ -100,6 +100,7 @@
                                         <% } %>
                                     </td> -->
                                     <td>
+                                        <a href="/editCoupon?id=<%= coupons[i]._id %>" class="btn btn-success btn-delete">Edit</a>
                                         <button type="button" class="btn btn-danger btn-delete" onclick="confirmDelete('<%= coupons[i]._id %>')">Delete</button>
                                     </td>
                                     <!-- Add more columns as needed -->
