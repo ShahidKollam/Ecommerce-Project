@@ -10,7 +10,7 @@ const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter') 
 const dbConnect = require('./config/dbConnect');
 dbConnect()
-  
+   
 app.use(express.static("public"))
 app.use('/static',express.static(path.join(__dirname, 'public/assets/corporate/css')));
 app.use('/static',express.static(path.join(__dirname, 'public/admin-asset/css')));
@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/',userRouter) 
-app.use('/',adminRouter)
+app.use('/',adminRouter)  
 
 app.listen( PORT,()=>{ console.log(`Server is running http://localhost:${PORT}/`) } ) 
 

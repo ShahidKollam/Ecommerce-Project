@@ -7,7 +7,7 @@ mongoose.connection.once('open', () => {
 mongoose.connection.on('error', err => {
     console.error(err)
 })
-                                                                                                                   
+                                                                                                                                  
 const dbConnection = async () => {
     try {
        await mongoose.connect(process.env.MONGODB_URL, {

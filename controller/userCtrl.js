@@ -66,12 +66,12 @@ const sendOtp = async(email,otp)=>{
         const transporter = nodemailer.createTransport({
             service:'Gmail',
             auth:{
-                user:config.emailUser ,
-                pass:config.emailPassword
+                user: process.env.EMAIL ,
+                pass: process.env.PASSWORD
             }
         })
         const mailOptions = {
-            from:config.emailUser,
+            from: process.env.EMAIL,
             to:email,
             subject:"Your OTP code",
             text:`Please don't share Your OTP code to anyone. \n Your OTP code is ${otp} \n OTP valid for 1 minute only.`
@@ -105,12 +105,12 @@ const sendVerifyMail = async(name,email,user_id)=>{
             secure:false,
             requireTLS:true,
             auth:{ 
-                user:config.emailUser,
-                pass:config.emailPassword                         // 'kdkt samg gqka skhk'
+                user: process.env.EMAIL ,
+                pass: process.env.PASSWORD
             }
         })
         const mailOptions = {
-            from:config.emailUser,
+            from: process.env.EMAIL,
             to:email,
             subject:'For Verification Email',
             html:'<p>Hi ' + name + ',please click here to <a href="http://localhost:5000/verify?id='+user_id+'"> Verify </a> your mail.</p> '
@@ -588,12 +588,12 @@ const sendMailReset = async(name,email,token)=>{
             secure:false,
             requireTLS:true,
             auth:{ 
-                user:config.emailUser,
-                pass:config.emailPassword                         // 'kdkt samg gqka skhk'
+                user: process.env.EMAIL ,
+                pass: process.env.PASSWORD
             }
         })
         const mailOptions = {
-            from:config.emailUser,
+            from: process.env.EMAIL,
             to:email,
             subject:'For Reset Password',
             html:'<p>Hi ' + name + ',please click here to <a href="http://localhost:5000/forgetPassword?token='+token+'"> Reset </a> your password.</p> '

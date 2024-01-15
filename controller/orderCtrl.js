@@ -12,7 +12,7 @@ const orderHistory = async(req,res)=>{
     try {
         const user = req.session.name;
         const id = req.session.user
-        const orders = await Order.find().sort({orderDate:-1})
+        const orders = await Order.find({user_id: id }).sort({ orderDate: -1 });
       
         res.render('order-history', {
           user,

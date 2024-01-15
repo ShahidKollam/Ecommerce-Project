@@ -1,7 +1,7 @@
 const userSession = "thisisuser"
 const adminSession = "thisisadmin"
 
-const emailUser = 'shahidazhari313@gmail.com'
+const emailUser = 'shahidazhari@gmail.com'
 const emailPassword = 'kdkt samg gqka skhk'
 
 module.exports = {
