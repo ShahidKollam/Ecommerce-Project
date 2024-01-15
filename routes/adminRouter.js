@@ -75,4 +75,8 @@ admin_route.post('/banner/edit',auth.isLogin,upload.upload.single('banner-image'
 admin_route.post('/banner/block',auth.isLogin,bannerCtrl.blockBanner)
 
 
+admin_route.use(function (req, res, next) {
+    res.status(404).render('404');
+}); 
+  
 module.exports = admin_route

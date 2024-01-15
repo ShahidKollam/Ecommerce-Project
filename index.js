@@ -23,5 +23,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/',userRouter) 
 app.use('/',adminRouter)  
 
+// app.use(function (req, res, next) {
+//     res.status(404).render('404');
+// }); 
+  
+// user_route.use(function (err, req, res, next) {
+//     res.status(500).res.render('error');
+// });
+
 app.listen( PORT,()=>{ console.log(`Server is running http://localhost:${PORT}/`) } ) 
 
