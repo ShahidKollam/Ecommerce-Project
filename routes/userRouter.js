@@ -106,6 +106,15 @@ user_route.post('/remove-item',auth.isLogin,wishlistCtrl.remove)
 // referal
 user_route.get('/referral',auth.isLogin,userController.referralPage)
 
+
+user_route.use(function (req, res, next) {
+    res.status(404).render('404');
+}); 
+  
+// user_route.use(function (err, req, res, next) {
+//     res.status(500).res.render('error');
+// });
+
 module.exports = user_route            
 
 
