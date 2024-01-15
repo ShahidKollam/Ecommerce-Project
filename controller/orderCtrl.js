@@ -7,13 +7,13 @@ const easyinvoice = require('easyinvoice');
 const moment = require('moment')
 const path = require('path');
 const fs = require('fs').promises
-
+                        
 const orderHistory = async(req,res)=>{
     try {
         const user = req.session.name;
         const id = req.session.user
         const orders = await Order.find({user_id: id }).sort({ orderDate: -1 });
-      
+       
         res.render('order-history', {
           user,
           orderData: orders

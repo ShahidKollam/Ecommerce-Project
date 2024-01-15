@@ -87,8 +87,8 @@
                     <h4 class="card-text">Order Date: <%= (new Date(order.orderDate)).toLocaleDateString('en-GB') %></h4>
                     <h4 class="card-text">Payment Method: <%=order.paymentMethod %></h4>
                     <h4 class="card-text">Order Status: <%=order.status %></h4>
-                    <h4 class="card-text">Shipping Address: <%= order.shippingAddress.house %></h4>
-                    <h5 class="card-text">PIN: <%= order.shippingAddress.pin %>, <%= order.shippingAddress.city %>, <%= order.shippingAddress.state%>.</h5>
+                    <h4 class="card-text">Shipping Address: <%= order.shippingAddress?.house %></h4>
+                    <h5 class="card-text">PIN: <%= order.shippingAddress?.pin %>, <%= order.shippingAddress?.city %>, <%= order.shippingAddress?.state %>.</h5>
                     <button class="btn btn-primary form-control" onclick="downloadInvoice('<%=order._id %>')">Get Order Invoice</button>
                 </div>
             </div>
