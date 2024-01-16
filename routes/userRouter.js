@@ -69,7 +69,6 @@ user_route.post('/address/delete/:addressId',auth.isLogin,profileCtrl.deleteAddr
 user_route.get('/changePassword',auth.isLogin,profileCtrl.changePassword)
 user_route.post('/changePassword',auth.isLogin,profileCtrl.updatePassword)
 
-
 // checkout
 user_route.get('/checkout',auth.isLogin,checkoutCtrl.loadCheckout)
 user_route.post('/place-order',auth.isLogin,checkoutCtrl.placeOrder)
@@ -105,7 +104,6 @@ user_route.post('/remove-item',auth.isLogin,wishlistCtrl.remove)
 
 // referal
 user_route.get('/referral',auth.isLogin,userController.referralPage)
-
 
 
 module.exports = user_route            
